@@ -12,6 +12,28 @@
 //Crafty("Keyboard").bind("KeyDown", function(){
 //    Crafty("*").trigger("Explode");
 //});
+function log(value) {
+	console.log(value);
+}
+function createAjaxRequest(method, URL, callback, data) {
+	var httpRequest = new XMLHttpRequest();
+
+	httpRequest.onreadystatechange = function() {
+		if(httpRequest.readyState == XMLHttpRequest.DONE && httpRequest.status == 200) {
+			callback(httpRequest.responseText);
+		}
+	};
+
+	httpRequest.open(method, URL, true);
+	httpRequest.send(data ? data : null);
+}
+
+document.getElementById("makeMove").onclick = function() {
+	createAjaxRequest("POST", "/ConnectFour/gm", log, JSON.stringify({
+		test: 1235
+	}));
+}
+
 
 window.onload = function() {
     Crafty.init(600,500, document.getElementById('game'));
