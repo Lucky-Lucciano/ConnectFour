@@ -29,7 +29,7 @@ function createAjaxRequest(method, URL, callback, data) {
 }
 
 document.getElementById("makeMove").onclick = function() {
-	createAjaxRequest("POST", "/ConnectFour/gm", log, JSON.stringify({
+	createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
 		test: 1235
 	}));
 }
