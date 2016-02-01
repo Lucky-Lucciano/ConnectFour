@@ -15,6 +15,22 @@
 function log(value) {
 	console.log(value);
 }
+
+// Players:
+var YELLOW = 0,
+    RED = 1;
+
+(function init() {
+	 createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
+ 		type: 0,
+     	data: {
+     		columns: 7,
+     		rows: 6,
+     		startingPlayer: YELLOW
+     	}
+ 	}));
+}())
+
 function createAjaxRequest(method, URL, callback, data) {
 	var httpRequest = new XMLHttpRequest();
 
@@ -25,7 +41,8 @@ function createAjaxRequest(method, URL, callback, data) {
 	};
 
 	httpRequest.open(method, URL, true);
-	httpRequest.send(data ? data : null);
+	httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	httpRequest.send(data ? "data=" + data + "&test=FCb" : null);
 }
 
 document.getElementById("makeMove").onclick = function() {
@@ -84,6 +101,16 @@ window.onload = function() {
             var row = findEmptyRow(column);
             if(row !== COLUMN_FULL && column >= 0 && column < 7) {
                 board[column][row] = turn;
+                
+                console.log("TURN made: " + turn + ";" + (turn ? "red" : "yellow"));
+                createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
+            		type: 1,
+                	data: {
+                		column: column,
+                		row: row,
+                		player: turn
+                	}
+            	}));
 
                 if(checkFour(column,row)) {
                     win(turn);
@@ -91,13 +118,14 @@ window.onload = function() {
                 }
 
                 turn ^= 1; //alternate turns
-                current = Crafty.e("2D, Canvas, piece, stopper,"+(turn ? "red" : "yellow")).attr({x: 495, y: 420});
+                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
             } else {
                 //dont' place
                 current.destroy();
-                current = Crafty.e("2D, Canvas, piece, stopper,"+(turn ? "red" : "yellow")).attr({x: 495, y: 420});
+                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
             }
         }
+        
         current = Crafty.e("2D, Canvas, piece, stopper, yellow").attr({x: 495, y: 420});
 
         var ground = Crafty.e("2D, stopper").attr({y: Crafty.viewport.height - 16, w: Crafty.viewport.width, h: 20 });
@@ -114,6 +142,7 @@ window.onload = function() {
     }
 
     Crafty.scene("game");//start the game
+    
     function findEmptyRow(column) {
         if(!board[column]) return;
         for(var i = 0; i < board[column].length; i++) {

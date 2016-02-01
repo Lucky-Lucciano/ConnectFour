@@ -10,14 +10,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import net.etfbl.connectfour.Game;
+
 /**
  * Servlet implementation class Game
  */
 @WebServlet("/req")
 public class Request extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
+    
+	public Game game;
+
+	/**
      * @see HttpServlet#HttpServlet()
      */
     public Request() {
@@ -29,23 +40,51 @@ public class Request extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO U sesiju upisati trenutni score
-		//HttpSession session = request.getSession();
-		//session.setAttribute("score", GameClassGetCurrentScore()++);
-		
-		PrintWriter pw = response.getWriter();
-		response.setContentType("text/plain");
-		pw.print("HOORAY");
-		pw.close();
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
+		doPost(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+		// TODO U sesiju upisati trenutni score
+		//HttpSession session = request.getSession();
+		//session.setAttribute("score", GameClassGetCurrentScore()++);
+		PrintWriter pw = response.getWriter();
+		response.setContentType("text/plain");
+		
+		if(request.getParameter("data") == null) {
+			pw.println("No information received!");
+			return;
+		}
+		
+		JsonObject requestObj;
+		
+		try {
+			requestObj = new JsonParser().parse(request.getParameter("data")).getAsJsonObject();
+		} catch(Exception e) {
+			System.out.println("ParseException: " + e.getMessage());
+			return;
+		}
+		
+		switch(requestObj.get("type").getAsInt()) {
+			case 0:
+				// Create a new game
+				game = new Game(6, 7, requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt(), 5);
+				break;
+			case 1:
+				//Handle move for current game
+				JsonObject moveInfo = requestObj.get("data").getAsJsonObject();
+				game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
+			default:
+				break;
+		}
+		
+		pw.close();
+		//response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
-
+	
+	/*public static void main(String[] args) {
+		
+	}*/
 }
