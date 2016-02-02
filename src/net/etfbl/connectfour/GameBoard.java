@@ -1,6 +1,7 @@
 package net.etfbl.connectfour;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.etfbl.connectfour.Game.Player;
@@ -17,7 +18,7 @@ public class GameBoard {
 		this.nRows = nRows;
 		this.nCols = nCols;
 		
-		this.board = new Integer[nRows + 1][nCols + 1];
+		this.board = new Integer[nRows][nCols];
 		
 		for(int i = 0; i < nRows; i++) {
             for(int j = 0; j < nCols; j++) {
@@ -28,8 +29,7 @@ public class GameBoard {
 	
 	public GameBoard(Integer board[][]) {
 		this.nRows = board.length;
-		this.nCols = board[this.nRows - 1].length;
-		System.out.println("Construct copy board " + this.nRows + " - " + this.nCols);
+		this.nCols = board[this.nRows -1].length;
 		this.board = board.clone();
 	}
 	
@@ -42,9 +42,15 @@ public class GameBoard {
 
         for(int i = 0; i < nCols; i++) {
         	System.out.println("Construct copy board " + nRows + " - " + i);
-            if(board[nRows - 1][i] == EMPTY)
+            if(this.board[nRows - 1][i] == EMPTY)
                 freeColumns.add(i);
         }
+        
+		System.out.println(Arrays.deepToString(this.board));
+		
+		System.out.println(Arrays.toString(this.board));
+		
+		System.out.println(freeColumns.toString());
         
         return freeColumns;
     }

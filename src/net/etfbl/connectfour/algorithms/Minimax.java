@@ -18,8 +18,6 @@ public class Minimax {
 	}
 
 	public static JsonObject minimaxDecision(GameBoard currentBoardState, Player currentPlayer) {
-		// TODO Auto-generated method stub
-		System.out.println("MINIMAXIS");
 		
 		return getRandomMove(currentBoardState);
 	}
@@ -29,7 +27,7 @@ public class Minimax {
         
 		GsonBuilder gson = new GsonBuilder();
 		
-		System.out.println("Random col:" + availableColumns.get(randInt(0, availableColumns.size())));
+		System.out.println("Random col:" + availableColumns.get(randInt(5, availableColumns.size()-1)));
 		
 //        return availableColumns.get(randInt(0, availableColumns.size()));
 		return null;
