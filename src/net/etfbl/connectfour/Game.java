@@ -1,5 +1,7 @@
 package net.etfbl.connectfour;
 
+import com.google.gson.JsonObject;
+
 import net.etfbl.connectfour.algorithms.AStar;
 import net.etfbl.connectfour.algorithms.AlphaBetaPruning;
 import net.etfbl.connectfour.algorithms.Minimax;
@@ -13,6 +15,7 @@ public class Game {
 	private int player1Score;
 	private int player2Score;
 	private Player currentPlayer;
+	private boolean gameActive;
 	
 	private GameBoard ConnectFourBoard;
 	
@@ -33,8 +36,9 @@ public class Game {
 		this.player1Score = 0;
 		this.player2Score = 0;
 		this.currentPlayer = this.player1;
+		this.gameActive = true;
 		
-		switch (AIType) {
+		switch(AIType) {
 			case 1:
 				minimax = new Minimax();
 				break;
@@ -60,16 +64,51 @@ public class Game {
 
 	public void makeMove(int row, int col) {
 		// TODO Auto-generated method stub
-		System.out.println("move");
-		System.out.println("Setting piece " + currentPlayer);
+		System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 		ConnectFourBoard.setPiece(row, col, currentPlayer);
 		
 		currentPlayer = getReversePlayer(currentPlayer);
+		if(AIType != 0) {
+			JsonObject abc = AIPlay();
+		}
 	}
 	
-	/*public static void main(String[] args) {
-		System.out.println(Player.RED.ordinal());
-	}*/
+	public JsonObject AIPlay() {
+        if(!this.gameActive) {
+            return null;
+        }
+
+        GameBoard currentBoardState = new GameBoard(ConnectFourBoard.getBoard());
+//            depth = parseInt(document.getElementById('cutoffVal').value),
+//            idealMove;
+
+//        Minimax.setCutOffValue(isNaN(depth) ? Number.POSITIVE_INFINITY : depth);
+
+//        if(AIType == 'minimax') {
+        JsonObject idealMove = Minimax.minimaxDecision(currentBoardState, currentPlayer);
+//        } else if(AIType == 'alpha-beta') {
+//            idealMove = Minimax.alphaBetaSearch(currentBoardState, currentPlayer);
+//        }
+
+//        var target = document.getElementById(idealMove.row + '_' + idealMove.col);
+
+        int currentRow = idealMove.get("row").getAsInt();
+        int currentColumn = idealMove.get("column").getAsInt();
+
+        //ConnectFourBoard.setPiece(currentRow, currentColumn, currentPlayer);
+        ConnectFourBoard.setPiece(currentColumn, currentPlayer);
+        
+        // TODO
+        //checkGameCompleted();
+
+        currentPlayer = getReversePlayer(currentPlayer);
+        
+        return idealMove;
+    };
+	
+	public static void main(String[] args) {
+//		System.out.println(null ? "1" : "2");
+	}
 	
 	
 }

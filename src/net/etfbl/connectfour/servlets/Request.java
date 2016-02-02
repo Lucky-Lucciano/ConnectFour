@@ -10,10 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -70,7 +66,7 @@ public class Request extends HttpServlet {
 		switch(requestObj.get("type").getAsInt()) {
 			case 0:
 				// Create a new game
-				game = new Game(6, 7, requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt(), 5);
+				game = new Game(6, 7, requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt(), 1);
 				break;
 			case 1:
 				//Handle move for current game
