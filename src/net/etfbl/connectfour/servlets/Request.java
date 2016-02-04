@@ -71,7 +71,8 @@ public class Request extends HttpServlet {
 			case 1:
 				//Handle move for current game
 				JsonObject moveInfo = requestObj.get("data").getAsJsonObject();
-				game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
+				String AIMove = game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
+				pw.println(AIMove);
 			default:
 				break;
 		}

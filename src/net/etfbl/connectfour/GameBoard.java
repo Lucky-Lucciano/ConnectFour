@@ -48,7 +48,7 @@ public class GameBoard {
         
 		System.out.println(Arrays.deepToString(this.board));
 		
-		System.out.println(Arrays.toString(this.board));
+		//System.out.println(Arrays.toString(this.board));
 		
 		System.out.println(freeColumns.toString());
         

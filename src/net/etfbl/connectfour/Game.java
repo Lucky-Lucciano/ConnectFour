@@ -1,5 +1,6 @@
 package net.etfbl.connectfour;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import net.etfbl.connectfour.algorithms.AStar;
@@ -62,18 +63,22 @@ public class Game {
         }
     }
 
-	public void makeMove(int row, int col) {
+	public String makeMove(int row, int col) {
 		// TODO Auto-generated method stub
 		System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 		ConnectFourBoard.setPiece(row, col, currentPlayer);
 		
 		currentPlayer = getReversePlayer(currentPlayer);
 		if(AIType != 0) {
-			JsonObject abc = AIPlay();
+			String abc = AIPlay();
+			
+			return abc;
 		}
+		
+		return "";
 	}
 	
-	public JsonObject AIPlay() {
+	public String AIPlay() {
         if(!this.gameActive) {
             return null;
         }
@@ -85,25 +90,27 @@ public class Game {
 //        Minimax.setCutOffValue(isNaN(depth) ? Number.POSITIVE_INFINITY : depth);
 
 //        if(AIType == 'minimax') {
-        JsonObject idealMove = Minimax.minimaxDecision(currentBoardState, currentPlayer);
+        Move idealMove = Minimax.minimaxDecision(currentBoardState, currentPlayer);
 //        } else if(AIType == 'alpha-beta') {
 //            idealMove = Minimax.alphaBetaSearch(currentBoardState, currentPlayer);
 //        }
 
 //        var target = document.getElementById(idealMove.row + '_' + idealMove.col);
-
-        int currentRow = idealMove.get("row").getAsInt();
-        int currentColumn = idealMove.get("column").getAsInt();
+        // TODO voditi evidenciju o zadnjem potezu?
+        int currentRow = idealMove.getRow();
+        int currentColumn = idealMove.getColumn();
 
         //ConnectFourBoard.setPiece(currentRow, currentColumn, currentPlayer);
         ConnectFourBoard.setPiece(currentColumn, currentPlayer);
         
         // TODO
         //checkGameCompleted();
+        
+        Gson gson = new Gson();
 
         currentPlayer = getReversePlayer(currentPlayer);
         
-        return idealMove;
+        return gson.toJson(idealMove);
     };
 	
 	public static void main(String[] args) {
