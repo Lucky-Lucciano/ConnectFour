@@ -8,6 +8,8 @@ import net.etfbl.connectfour.Game.Player;
 
 public class GameBoard {
 	private static final int EMPTY = -1;
+	private static final int YELLOW = 0;
+	private static final int RED = 1;
 	private static final int COLUMN_FULL = -2;
 	
 	private int nRows;
@@ -41,16 +43,18 @@ public class GameBoard {
 		List<Integer> freeColumns = new ArrayList<Integer>();
 
         for(int i = 0; i < nCols; i++) {
-        	System.out.println("Construct copy board " + nRows + " - " + i);
             if(this.board[nRows - 1][i] == EMPTY)
                 freeColumns.add(i);
         }
         
-		System.out.println(Arrays.deepToString(this.board));
+		//System.out.println(Arrays.deepToString(this.board));
 		
-		//System.out.println(Arrays.toString(this.board));
+		//System.out.println(Arrays.toString(this.board[0]));
+		//System.out.println(Arrays.toString(this.board[1]));
 		
-		System.out.println(freeColumns.toString());
+		//System.out.println(freeColumns.toString());
+        
+        System.out.println(this);
         
         return freeColumns;
     }
@@ -70,7 +74,7 @@ public class GameBoard {
 	
 	public void setPiece(int column, Player player) {
 		int row = findEmptyRow(column);
-		
+		System.out.println("Inserting piece " + player + "; ordinal: " + (Integer) player.ordinal());
 		if(row != COLUMN_FULL && column >= 0 && column < this.nCols) {
 			this.board[row][column] = (Integer) player.ordinal();
 		}
@@ -79,6 +83,35 @@ public class GameBoard {
 	public void setPiece(int row, int col, Player player) {
 		this.board[row][col] = (Integer) player.ordinal();
     }
+	
+	@Override
+	public String toString() {
+		String boardToView = "";
+		Integer currentValue = 0;
+		
+		for(int i = nRows - 1; i >= 0; i--) {
+			boardToView += "[";
+            for(int j = 0; j < nCols; j++) {
+                currentValue = this.board[i][j];
+                
+            	if(currentValue == EMPTY) {
+                	boardToView += "EMP";
+                } else if(currentValue == YELLOW) {
+                	boardToView += "YEL";
+                } else if(currentValue == RED) {
+                	boardToView += "RED";
+                }
+            	
+            	if(j != nCols -1) {
+            		boardToView += ", ";
+            	}
+            }
+            
+            boardToView += "] \n";
+        }
+		
+		return boardToView;
+	}
 
 	public int getnRows() {
 		return nRows;
