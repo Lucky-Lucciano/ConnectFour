@@ -81,6 +81,7 @@ public class GameBoard {
 	}
 	
 	public void setPiece(int row, int col, Player player) {
+		System.out.println("GEGE " + player);
 		this.board[row][col] = (Integer) player.ordinal();
     }
 	

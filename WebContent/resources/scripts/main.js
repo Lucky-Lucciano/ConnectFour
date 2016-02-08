@@ -20,6 +20,8 @@ function log(value) {
 var YELLOW = 0,
     RED = 1;
 
+var vsAI = true;
+
 (function init() {
 	 createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
  		type: 0,
@@ -46,104 +48,112 @@ function createAjaxRequest(method, URL, callback, data) {
 }
 
 document.getElementById("makeMove").onclick = function() {
-	createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
+	/*createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
 		test: 1235
-	}));
+	}));*/
+	
+	ConnectFour.moveAI(6);
 }
 
+var ConnectFour = (function(){
+	var turn = 0, //turn based
+	    board = [],
+	    COLUMN_FULL = -2,
+	    EMPTY = -1,
+	    YELLOW = 0,
+	    RED = 1;
+	
+	var vsAI = true,
+		current;
+	
+	var init = function() {
+		Crafty.init(600,500, document.getElementById('game'));
+	    //Crafty.canvas();
 
-window.onload = function() {
-    Crafty.init(600,500, document.getElementById('game'));
-    //Crafty.canvas();
+	    Crafty.sprite(64, "resources/img/sprite.png", {
+	        red: [0,0],
+	        yellow: [1,0],
+	        empty: [2,0]
+	    });
+	    
+	    Crafty.scene("game", function() {
+	        //generate board
+	        for(var i = 0; i < 7; i++) {
+	            board[i] = []; //init board
+	            for(var j = 0; j < 6; j++) {
+	                Crafty.e("2D, Canvas, empty").attr({x: i * 64, y: j * 64 + 100, z: 2});
+	                board[i][j] = EMPTY; //set it to empty
+	            }
+	        }
 
-    Crafty.sprite(64, "resources/img/sprite.png", {
-        red: [0,0],
-        yellow: [1,0],
-        empty: [2,0]
-    });
+	        Crafty.c("piece", {
+	            init: function() {
+	                this.z = 3;
+	                this.requires("Mouse, Gravity, Draggable");
+	                this.bind("StopDrag", function() {
+	                    console.log("STOP");
+	                    var column = Math.round(this._x / 64);
+	                    this.x = column * 64;
+	                    this.gravity("stopper");
+	                    this.unbind("mousedown");
 
-    var turn = 0, //turn based
-        board = [],
-        COLUMN_FULL = -2,
-        EMPTY = -1,
-        YELLOW = 0,
-        RED = 1;
+	                    reset(column);
+	                });
+	            }
+	        });
 
-    Crafty.scene("game", function() {
+	        function reset(column) {
+	            var row = findEmptyRow(column);
+	            if(row !== COLUMN_FULL && column >= 0 && column < 7) {
+	            	board[column][row] = turn;
+	                
+	                console.log("TURN made: " + turn + ";" + (turn ? "red" : "yellow"));
+	                
+	                if(checkFour(column,row)) {
+	                    win(turn);
+	                    return;
+	                }
+	                
+	                if(turn == 0) {
+	                	createAjaxRequest("POST", "/ConnectFour/req", moveAI, JSON.stringify({
+		            		type: 1,
+		                	data: {
+		                		column: column,
+		                		row: row,
+		                		player: turn
+		                	}
+		            	}));
+	                }
 
-        //generate board
-        for(var i = 0; i < 7; i++) {
-            board[i] = []; //init board
-            for(var j = 0; j < 6; j++) {
-                Crafty.e("2D, Canvas, empty").attr({x: i * 64, y: j * 64 + 100, z: 2});
-                board[i][j] = EMPTY; //set it to empty
-            }
-        }
+	                turn ^= 1; //alternate turns
+	                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
+	            } else {
+	                //dont' place
+	                current.destroy();
+	                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
+	            }
+	        }
+	        
+	        current = Crafty.e("2D, Canvas, piece, stopper, yellow").attr({x: 495, y: 420});
 
-        Crafty.c("piece", {
-            init: function() {
-                this.z = 3;
-                this.requires("Mouse, Gravity, Draggable");
-                this.bind("StopDrag", function() {
-                    console.log("STOP");
-                    var column = Math.round(this._x / 64);
-                    this.x = column * 64;
-                    this.gravity("stopper");
-                    this.unbind("mousedown");
-
-                    reset(column);
-                });
-            }
-        });
-
-        var current;
-        function reset(column) {
-            var row = findEmptyRow(column);
-            if(row !== COLUMN_FULL && column >= 0 && column < 7) {
-                board[column][row] = turn;
-                
-                console.log("TURN made: " + turn + ";" + (turn ? "red" : "yellow"));
-                createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
-            		type: 1,
-                	data: {
-                		column: column,
-                		row: row,
-                		player: turn
-                	}
-            	}));
-
-                if(checkFour(column,row)) {
-                    win(turn);
-                    return;
-                }
-
-                turn ^= 1; //alternate turns
-                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
-            } else {
-                //dont' place
-                current.destroy();
-                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
-            }
-        }
-        
-        current = Crafty.e("2D, Canvas, piece, stopper, yellow").attr({x: 495, y: 420});
-
-        var ground = Crafty.e("2D, stopper").attr({y: Crafty.viewport.height - 16, w: Crafty.viewport.width, h: 20 });
-        var bg = Crafty.e("2D, Canvas, Image").image("resources/img/bg.png").attr({z: -1});
-    });
-
-    Crafty.scene("win", function() {
-        var bg = Crafty.e("2D, DOM, Image").image("resources/img/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-        Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
-    });
-
-    function win(turn) {
+	        var ground = Crafty.e("2D, stopper").attr({y: Crafty.viewport.height - 16, w: Crafty.viewport.width, h: 20 });
+	        var bg = Crafty.e("2D, Canvas, Image").image("resources/img/bg.png").attr({z: -1});
+	    });
+	    
+	    Crafty.scene("win", function() {
+	        var bg = Crafty.e("2D, DOM, Image").image("resources/img/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
+	        Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
+	    });
+	    
+	    // start the game
+	    Crafty.scene("game");
+	}
+	
+	function win(turn) {
         Crafty.scene("win");
     }
-
-    Crafty.scene("game");//start the game
-    
-    function findEmptyRow(column) {
+	
+	function findEmptyRow(column) {
         if(!board[column]) return;
         for(var i = 0; i < board[column].length; i++) {
             if(board[column][i] == EMPTY)
@@ -233,4 +243,22 @@ window.onload = function() {
         }
         return counter>=4;
     }
-};
+    
+    function moveAI(result) {
+    	var moveDecision = JSON.parse(result),
+    		column = moveDecision.column;
+    	
+    	current.startDrag();
+    	current.attr({x: 64 * column, y: 0});
+    	current.stopDrag();
+    }
+
+	return {
+		init: init,
+		moveAI: moveAI
+	}
+}());
+
+
+
+window.onload = ConnectFour.init;

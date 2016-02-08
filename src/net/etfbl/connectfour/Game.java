@@ -64,14 +64,11 @@ public class Game {
     }
 
 	public String makeMove(int row, int col) {
-		// TODO Auto-generated method stub
 		System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 		ConnectFourBoard.setPiece(row, col, currentPlayer);
-		
 		currentPlayer = getReversePlayer(currentPlayer);
 		if(AIType != 0) {
 			String abc = AIPlay();
-			
 			return abc;
 		}
 		
