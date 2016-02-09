@@ -87,7 +87,7 @@ public class Game {
 //        Minimax.setCutOffValue(isNaN(depth) ? Number.POSITIVE_INFINITY : depth);
 
 //        if(AIType == 'minimax') {
-        Move idealMove = Minimax.minimaxDecision(currentBoardState, currentPlayer);
+        Move idealMove = minimax.minimaxDecision(currentBoardState, currentPlayer);
 //        } else if(AIType == 'alpha-beta') {
 //            idealMove = Minimax.alphaBetaSearch(currentBoardState, currentPlayer);
 //        }

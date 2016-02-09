@@ -1,6 +1,9 @@
 package net.etfbl.connectfour.algorithms;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.google.gson.Gson;
@@ -12,16 +15,76 @@ import net.etfbl.connectfour.GameBoard;
 import net.etfbl.connectfour.Move;
 
 public class Minimax {
-	
+	Player Max;
+	Player Min;
 	
 	
 	public Minimax() {
 		
 	}
-
-	public static Move minimaxDecision(GameBoard currentBoardState, Player currentPlayer) {
+	
+	public Move minimaxDecision(GameBoard board, Player player) {
+		this.Max = player;
+		this.Min = player;
 		
-		return getRandomMove(currentBoardState);
+		Move[] possibleStateActions = board.stateActions();
+		Map actionUtilities = new HashMap();
+		
+		for(int i = 0; i < possibleStateActions.length; i++) {
+			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Max), possibleStateActions[i], Max));
+		}
+		
+		/*var max = Number.NEGATIVE_INFINITY,
+                maxKey;
+
+        for(var utilValue in actionUtilities) {
+            if(actionUtilities[utilValue] > max) {
+                max = actionUtilities[utilValue];
+                maxKey = utilValue
+            }
+        }
+
+        return possibleStateActions[maxKey];*/
+		
+		return getRandomMove(board);
+	}
+	
+	private int maxValue(GameBoard board, Move previousMove, Player previousPlayer) {
+		int terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		
+		if(terminalState != -1) {
+            return terminalState;
+        }
+		
+		double score = Double.NEGATIVE_INFINITY;
+		Move[] possibleStateActions = board.stateActions();
+		GameBoard tempActionState;
+		
+		for(int i = 0; i < possibleStateActions.length; i++) {
+            tempActionState = board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Max);
+            score = Math.max(score, minValue(tempActionState, possibleStateActions[i], Max));
+        }
+
+        return (int) score;
+	}
+	
+	private int minValue(GameBoard board, Move previousMove, Player previousPlayer) {
+		int terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		
+		if(terminalState != -1) {
+            return terminalState;
+        }
+		
+		double score = Double.POSITIVE_INFINITY;
+		Move[] possibleStateActions = board.stateActions();
+		GameBoard tempActionState;
+		
+		for(int i = 0; i < possibleStateActions.length; i++) {
+            tempActionState = board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Min);
+            score = Math.min(score, maxValue(tempActionState, possibleStateActions[i], Min));
+        }
+
+        return (int) score;
 	}
 	
 	static Move getRandomMove(GameBoard board) {

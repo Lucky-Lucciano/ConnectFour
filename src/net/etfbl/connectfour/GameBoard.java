@@ -85,6 +85,25 @@ public class GameBoard {
 		this.board[row][col] = (Integer) player.ordinal();
     }
 	
+	// TODO checkTerminalState
+	public int checkTerminalState(Move previousMove, Player previousPlayer) {
+		
+		return 0;
+	}
+	
+	// TODO actionResult
+	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
+
+		return null;
+	}
+	
+
+	// TODO stateActions
+	public Move[] stateActions() {
+		
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		String boardToView = "";
