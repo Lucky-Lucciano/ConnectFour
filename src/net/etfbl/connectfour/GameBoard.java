@@ -73,16 +73,15 @@ public class GameBoard {
     }
 	
 	public void setPiece(int column, Player player) {
-		int row = findEmptyRow(column);
+		setPiece(findEmptyRow(column), column, player);
+	}
+	
+	public void setPiece(int row, int column, Player player) {
 		System.out.println("Inserting piece " + player + "; ordinal: " + (Integer) player.ordinal());
+		
 		if(row != COLUMN_FULL && column >= 0 && column < this.nCols) {
 			this.board[row][column] = (Integer) player.ordinal();
 		}
-	}
-	
-	public void setPiece(int row, int col, Player player) {
-		System.out.println("GEGE " + player);
-		this.board[row][col] = (Integer) player.ordinal();
     }
 	
 	// TODO checkTerminalState
@@ -99,9 +98,22 @@ public class GameBoard {
 	
 
 	// TODO stateActions
-	public Move[] stateActions() {
+	public List<Move> stateActions() {
+		List<Move> actions = new ArrayList<Move>();
+		List<Integer> freeColumns = getFreeColumns();
+		int currentRow;
 		
-		return null;
+		for(Integer currentCol: freeColumns) {
+			currentRow = findEmptyRow(currentCol);
+			
+			if(currentRow != COLUMN_FULL) {
+				actions.add(new Move(currentRow, currentCol));
+			} else {
+				System.out.println("COLUMN FULL: " + currentCol);
+			}
+		}
+		
+		return actions;
 	}
 	
 	@Override

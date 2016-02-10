@@ -27,11 +27,13 @@ public class Minimax {
 		this.Max = player;
 		this.Min = player;
 		
-		Move[] possibleStateActions = board.stateActions();
+		List<Move> possibleStateActions = board.stateActions();
+		Move currentAction;
 		Map actionUtilities = new HashMap();
 		
-		for(int i = 0; i < possibleStateActions.length; i++) {
-			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Max), possibleStateActions[i], Max));
+		for(int i = 0; i < possibleStateActions.size(); i++) {
+			currentAction = possibleStateActions.get(i);
+			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), currentAction, Max), currentAction, Max));
 		}
 		
 		/*var max = Number.NEGATIVE_INFINITY,
@@ -57,12 +59,14 @@ public class Minimax {
         }
 		
 		double score = Double.NEGATIVE_INFINITY;
-		Move[] possibleStateActions = board.stateActions();
+		List<Move> possibleStateActions = board.stateActions();
 		GameBoard tempActionState;
+		Move currentState;
 		
-		for(int i = 0; i < possibleStateActions.length; i++) {
-            tempActionState = board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Max);
-            score = Math.max(score, minValue(tempActionState, possibleStateActions[i], Max));
+		for(int i = 0; i < possibleStateActions.size(); i++) {
+			currentState = possibleStateActions.get(i);
+            tempActionState = board.actionResult(new GameBoard(board.getBoard()), currentState, Max);
+            score = Math.max(score, minValue(tempActionState, currentState, Max));
         }
 
         return (int) score;
@@ -76,12 +80,14 @@ public class Minimax {
         }
 		
 		double score = Double.POSITIVE_INFINITY;
-		Move[] possibleStateActions = board.stateActions();
+		List<Move> possibleStateActions = board.stateActions();
 		GameBoard tempActionState;
+		Move currentState;
 		
-		for(int i = 0; i < possibleStateActions.length; i++) {
-            tempActionState = board.actionResult(new GameBoard(board.getBoard()), possibleStateActions[i], Min);
-            score = Math.min(score, maxValue(tempActionState, possibleStateActions[i], Min));
+		for(int i = 0; i < possibleStateActions.size(); i++) {
+			currentState = possibleStateActions.get(i);
+            tempActionState = board.actionResult(new GameBoard(board.getBoard()), currentState, Min);
+            score = Math.min(score, maxValue(tempActionState, currentState, Min));
         }
 
         return (int) score;
