@@ -90,14 +90,13 @@ public class GameBoard {
 		return 0;
 	}
 	
-	// TODO actionResult
 	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
-
-		return null;
+		System.out.println("Move: " + moveToMake);
+		gameBoard.setPiece(moveToMake.getRow(), moveToMake.getColumn(), player);
+		System.out.println(gameBoard);
+		return gameBoard;
 	}
 	
-
-	// TODO stateActions
 	public List<Move> stateActions() {
 		List<Move> actions = new ArrayList<Move>();
 		List<Integer> freeColumns = getFreeColumns();
