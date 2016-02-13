@@ -24,9 +24,10 @@ public class Minimax {
 	}
 	
 	public Move minimaxDecision(GameBoard board, Player player) {
-		this.Max = player;
-		this.Min = player;
+		Max = player;
+		Min = getReversePlayer(player);
 		
+		System.out.println("Starting MINIMAX - Max: " + Max + "; Min: " + Min);
 		List<Move> possibleStateActions = board.stateActions();
 		Move currentAction;
 		Map actionUtilities = new HashMap();
@@ -35,6 +36,10 @@ public class Minimax {
 			currentAction = possibleStateActions.get(i);
 			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), currentAction, Max), currentAction, Max));
 		}
+		
+		System.out.println("MINIMAX Result: " + actionUtilities);
+		
+		System.out.println("Current Board : \n" + board);
 		
 		/*var max = Number.NEGATIVE_INFINITY,
                 maxKey;
@@ -48,13 +53,13 @@ public class Minimax {
 
         return possibleStateActions[maxKey];*/
 		
-		return getRandomMove(board);
+		return possibleStateActions.get(0);
 	}
 	
 	private int maxValue(GameBoard board, Move previousMove, Player previousPlayer) {
-		int terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer);
 		
-		if(terminalState != -1) {
+		if(terminalState != null) {
             return terminalState;
         }
 		
@@ -73,9 +78,9 @@ public class Minimax {
 	}
 	
 	private int minValue(GameBoard board, Move previousMove, Player previousPlayer) {
-		int terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer);
 		
-		if(terminalState != -1) {
+		if(terminalState != null) {
             return terminalState;
         }
 		
@@ -113,5 +118,13 @@ public class Minimax {
         int randNumber = randGenerator.nextInt((max - min)) + min;
 
         return randNumber;
+    }
+    
+    public Player getReversePlayer(Player player) {
+        if(player.equals(Player.RED)) {
+            return Player.YELLOW;
+        } else {
+            return Player.RED;
+        }
     }
 }
