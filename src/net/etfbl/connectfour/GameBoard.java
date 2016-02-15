@@ -36,8 +36,22 @@ public class GameBoard {
 	public GameBoard(Integer board[][]) {
 		this.nRows = board.length;
 		this.nCols = board[this.nRows -1].length;
-		this.board = board.clone();
-	}
+//		//
+//		System.out.println("AROOOOWW: " + this.nRows + " - " + board.length + "; this.nCols " + this.nCols);
+//		System.out.println(Arrays.deepToString(board));
+		this.board = new Integer[nRows][nCols];
+//		this.board = board.clone();
+//		try{
+		for(int i = 0; i < this.nRows; i++) {
+			for(int j = 0; j < this.nCols; j++) {
+//				System.out.println("i: " + i + " - j: " + j + "; " + board[i][j]);
+			    this.board[i][j] = board[i][j];
+			}
+		}
+//		}catch(NullPointerException ex) {
+//			System.out.println(ex.getMessage());
+//		}
+	} 
 	
 	public Integer getPiece(int row, int col) {
     	return this.board[row][col];
@@ -58,7 +72,7 @@ public class GameBoard {
 		
 		//System.out.println(freeColumns.toString());
         
-        System.out.println(this);
+//        System.out.println(this);
         
         return freeColumns;
     }
@@ -81,7 +95,7 @@ public class GameBoard {
 	}
 	
 	public void setPiece(int row, int column, Player player) {
-		System.out.println("Inserting piece " + player + "; ordinal: " + (Integer) player.ordinal());
+//		System.out.println("Inserting piece " + player + "; ordinal: " + (Integer) player.ordinal());
 		
 		if(row != COLUMN_FULL && column >= 0 && column < this.nCols) {
 			this.board[row][column] = (Integer) player.ordinal();
@@ -89,7 +103,7 @@ public class GameBoard {
     }
 	
 	public Integer checkTerminalState(Move previousMove, Player previousPlayer) {
-		System.out.println("TERM check: " + previousMove.getRow());
+//		System.out.println("TERM check: " + previousMove.getRow());
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
 			return previousPlayer == Player.RED ? RED_WON : YELLOW_WON;
 		} else if(checkDraw(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
@@ -242,9 +256,8 @@ public class GameBoard {
     }
 	
 	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
-		System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());
+//		System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());
 		gameBoard.setPiece(moveToMake.getRow(), moveToMake.getColumn(), player);
-		System.out.println(gameBoard);
 		return gameBoard;
 	}
 	
