@@ -12,9 +12,9 @@ public class GameBoard {
 	private static final int COLUMN_FULL = -2;
 	private static final int YELLOW = 0;
 	private static final int RED = 1;
-	private static final int YELLOW_WON = -1;
-	private static final int RED_WON = 1;
-	private static final int DRAW = 0;
+	public static final int YELLOW_WON = -1;
+	public static final int RED_WON = 1;
+	public static final int DRAW = 0;
 	
 	private int nRows;
 	private int nCols;
@@ -124,7 +124,7 @@ public class GameBoard {
         return true;
     }
 	
-	private boolean checkFour(int row, int column, int player) {
+	public boolean checkFour(int row, int column, int player) {
         if(checkVertical(row, column, player))
         	return true;
         if(checkHorizontal(row, column, player))

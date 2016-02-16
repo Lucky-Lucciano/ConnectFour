@@ -24,7 +24,7 @@ public class Request extends HttpServlet {
 	
 	// Depth == 4 - 50% win rate for me
 	// Depth == 5 - 1% win rate for me
-	private static final int DEPTH = 5;
+	private static final int DEPTH = 6;
     
 	public Game game;
 

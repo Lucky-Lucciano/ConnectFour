@@ -73,7 +73,7 @@ public class Minimax {
         } else if(lowerDepth <= 0) {
         	int eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
             System.out.println("Max eval at depth: " + lowerDepth + "; state evaluation: " + eval);
-            return eval;
+            return (previousPlayer == Player.RED ? GameBoard.RED_WON : GameBoard.YELLOW_WON) * eval;
         }
 		
 		double score = Double.NEGATIVE_INFINITY;
