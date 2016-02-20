@@ -72,7 +72,7 @@ public class Minimax {
             return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
-            System.out.println("Max eval at depth: " + lowerDepth + "; state evaluation: " + eval);
+            System.out.println("+ Max state evaluation: " + eval);
             return (previousPlayer == Player.RED ? GameBoard.RED_WON : GameBoard.YELLOW_WON) * eval;
         }
 		
@@ -98,7 +98,7 @@ public class Minimax {
             return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
-            System.out.println("Min eval at depth: " + lowerDepth + "; state evaluation: " + eval);
+            System.out.println("- Min state evaluation: " + eval);
             return eval;
         }
 		
