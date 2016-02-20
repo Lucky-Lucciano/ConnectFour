@@ -58,6 +58,8 @@ public class Minimax {
                 maxKey = utilValue
             }
         }*/
+        // TODO Od svih postojeicj poteza sa istom vrijednoscu uzeti one blize centru, na istoj udaljenosti od centra randomizaovati
+        System.out.println("MINIMAX FINAL :" + possibleStateActions.get(maxKey));
 
         return possibleStateActions.get(maxKey);
 		
@@ -71,7 +73,7 @@ public class Minimax {
 		if(terminalState != null) {
             return terminalState;
         } else if(lowerDepth <= 0) {
-        	int eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	int eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
             System.out.println("+ Max state evaluation: " + eval);
             return (previousPlayer == Player.RED ? GameBoard.RED_WON : GameBoard.YELLOW_WON) * eval;
         }
@@ -97,7 +99,7 @@ public class Minimax {
 		if(terminalState != null) {
             return terminalState;
         } else if(lowerDepth <= 0) {
-        	int eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	int eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
             System.out.println("- Min state evaluation: " + eval);
             return eval;
         }
