@@ -105,7 +105,8 @@ public class GameBoard {
 	public Integer checkTerminalState(Move previousMove, Player previousPlayer) {
 //		System.out.println("TERM check: " + previousMove.getRow());
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
-			return previousPlayer == Player.RED ? RED_WON : YELLOW_WON;
+//			 System.out.println("TERM prev - " + previousPlayer + " value " + (previousPlayer == Player.RED ? RED_WON : YELLOW_WON));
+			return 10 * (previousPlayer == Player.RED ? RED_WON : YELLOW_WON);
 		} else if(checkDraw(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
 			return DRAW;
 		}

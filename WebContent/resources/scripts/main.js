@@ -20,18 +20,45 @@ function log(value) {
 var YELLOW = 0,
     RED = 1;
 
-var vsAI = true;
+var vsAI = true,
+	yellowPlayerType,
+	redPlayerType;
 
-(function init() {
-	 createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
+function startNewGame() {
+	console.log("START !!");
+	function newGameResponse() {
+		/**
+		 * Ako nije human playerda odigra potez
+		 */
+		if(yellowPlayerType != 0) {
+			createAjaxRequest("POST", "/ConnectFour/req", ConnectFour.moveAI, JSON.stringify({
+        		type: 1,
+            	data: {
+            		column: -1,
+            		row: -1,
+            		player: 0
+            	}
+        	}));
+		}
+	}
+	
+	yellowPlayerType = document.getElementById('yellowMenu').selectedIndex;
+	redPlayerType = document.getElementById('redMenu').selectedIndex;
+	
+	createAjaxRequest("POST", "/ConnectFour/req", newGameResponse, JSON.stringify({
  		type: 0,
      	data: {
      		columns: 7,
      		rows: 6,
-     		startingPlayer: YELLOW
+     		startingPlayer: YELLOW,
+     		yellow: yellowPlayerType,
+     		red: redPlayerType,
+     		yellowDepth: parseInt(document.getElementById('cutoffYellow').value),
+     		redDepth: parseInt(document.getElementById('cutoffRed').value),
+     		autoPlay: document.getElementById('autoPlay').checked
      	}
  	}));
-}())
+}
 
 function createAjaxRequest(method, URL, callback, data) {
 	var httpRequest = new XMLHttpRequest();
@@ -47,14 +74,6 @@ function createAjaxRequest(method, URL, callback, data) {
 	httpRequest.send(data ? "data=" + data + "&test=FCb" : null);
 }
 
-document.getElementById("makeMove").onclick = function() {
-	/*createAjaxRequest("POST", "/ConnectFour/req", log, JSON.stringify({
-		test: 1235
-	}));*/
-	
-	ConnectFour.moveAI(6);
-}
-
 var ConnectFour = (function(){
 	var turn = 0, //turn based
 	    board = [],
@@ -67,6 +86,10 @@ var ConnectFour = (function(){
 		current;
 	
 	var init = function() {
+		//TODO DELETE
+		//startNewGame()
+		
+		
 		Crafty.init(600,500, document.getElementById('game'));
 	    //Crafty.canvas();
 
@@ -114,16 +137,12 @@ var ConnectFour = (function(){
 	                    return;
 	                }
 	                
-	                if(turn == 0) {
-	                	createAjaxRequest("POST", "/ConnectFour/req", moveAI, JSON.stringify({
-		            		type: 1,
-		                	data: {
-		                		column: column,
-		                		row: row,
-		                		player: turn
-		                	}
-		            	}));
-	                }
+//	                if(turn == 0) {
+	                // TODO provjera je li human
+	                	makeAIMove(column, row, turn);
+//	                } else if(turn == 1) {
+//	                	makeAIMove(column, row, turn);
+//	                }
 
 	                turn ^= 1; //alternate turns
 	                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
@@ -140,17 +159,29 @@ var ConnectFour = (function(){
 	        var bg = Crafty.e("2D, Canvas, Image").image("resources/img/bg.png").attr({z: -1});
 	    });
 	    
-	    Crafty.scene("win", function() {
-	        var bg = Crafty.e("2D, DOM, Image").image("resources/img/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-	        Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
-	    });
+	    function makeAIMove(column, row, player) {
+	    	createAjaxRequest("POST", "/ConnectFour/req", moveAI, JSON.stringify({
+        		type: 1,
+            	data: {
+            		column: column,
+            		row: row,
+            		player: player
+            	}
+        	}));
+	    }
+	    
+//	    Crafty.scene("win", function() {
+//	        var bg = Crafty.e("2D, DOM, Image").image("resources/img/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
+//	        Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
+//	    });
 	    
 	    // start the game
 	    Crafty.scene("game");
 	}
 	
 	function win(turn) {
-        Crafty.scene("win");
+		  alert((turn ? "RED" : "YELLOW") +  " has won!");
+//        Crafty.scene("win");
     }
 	
 	function findEmptyRow(column) {
@@ -258,7 +289,5 @@ var ConnectFour = (function(){
 		moveAI: moveAI
 	}
 }());
-
-
 
 window.onload = ConnectFour.init;

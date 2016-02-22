@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import net.etfbl.connectfour.algorithms.AStar;
+import net.etfbl.connectfour.algorithms.Algorithm;
 import net.etfbl.connectfour.algorithms.AlphaBetaPruning;
 import net.etfbl.connectfour.algorithms.Minimax;
 
@@ -18,6 +19,9 @@ public class Game {
 	private Player currentPlayer;
 	private boolean gameActive;
 	private int depth;
+	private Algorithm yellowPlayerAlogrithm;
+	private Algorithm redPlayerAlogrithm;
+	private boolean autoPlay;
 	
 	private GameBoard ConnectFourBoard;
 	
@@ -29,10 +33,10 @@ public class Game {
 		YELLOW, RED
 	}
 	
-	public Game(int nRows, int nCols, int startingPlayer, int AIType, int depth) {
+	public Game(int nRows, int nCols, int startingPlayer, int yellowPlayerType, int redPlayerType, boolean autoplay, int depth) {
 		ConnectFourBoard = new GameBoard(nRows, nCols);
 		
-		this.AIType = AIType;
+//		this.AIType = AIType;
 		this.player1 = Player.values()[startingPlayer];
 		this.player2 = getReversePlayer(player1);
 		this.player1Score = 0;
@@ -40,10 +44,16 @@ public class Game {
 		this.currentPlayer = this.player1;
 		this.gameActive = true;
 		this.depth = depth;
+//		this.yellowPlayerType = ;
+//		this.redPlayerType;
+		this.autoPlay = autoplay;
 		
-		switch(AIType) {
+		switch(yellowPlayerType) {
+			case 0:
+				this.yellowPlayerAlogrithm = null;
+				break;
 			case 1:
-				minimax = new Minimax();
+				this.yellowPlayerAlogrithm = new Minimax();
 				break;
 			case 2:
 				alphaBetaPrune = new AlphaBetaPruning();
@@ -55,6 +65,22 @@ public class Game {
 				break;
 		}
 		
+		switch(redPlayerType) {
+			case 0:
+				this.redPlayerAlogrithm = null;
+				break;
+			case 1:
+				this.redPlayerAlogrithm = new Minimax();
+				break;
+			case 2:
+				alphaBetaPrune = new AlphaBetaPruning();
+				break;
+			case 3:
+				astar = new AStar();
+				break;
+			default:
+				break;
+		}
 	}
 	
 	public Player getReversePlayer(Player player) {
@@ -66,15 +92,23 @@ public class Game {
     }
 
 	public String makeMove(int row, int col) {
-		System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
-		ConnectFourBoard.setPiece(row, col, currentPlayer);
-		currentPlayer = getReversePlayer(currentPlayer);
-		if(AIType != 0) {
-			String abc = AIPlay();
-			return abc;
+		/**
+		 * Provjera ako nije null, znaci da je current AI pa ne treba setovati piece jer se to vec radi u AIPlay
+		 */
+		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : redPlayerAlogrithm != null) && row != -1 && col != -1) {
+			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
+			ConnectFourBoard.setPiece(row, col, currentPlayer);
+			currentPlayer = getReversePlayer(currentPlayer);
+		} else {
+			System.out.println("First move - player:s " + currentPlayer);
 		}
 		
-		return "";
+//		if(AIType != 0) {
+			String abc = AIPlay();
+			return abc;
+//		}
+		
+//		return "";
 	}
 	
 	public String AIPlay() {
@@ -92,16 +126,21 @@ public class Game {
         		{1, 0, -1, -1, -1, 1, 0}
         };
         
-        GameBoard test = new GameBoard(hhh);
+//        GameBoard test = new GameBoard(hhh);
         
-        System.out.println(test);
+//        System.out.println(test);
 //            depth = parseInt(document.getElementById('cutoffVal').value),
 //            idealMove;
 
 //        Minimax.setCutOffValue(isNaN(depth) ? Number.POSITIVE_INFINITY : depth);
-
+        Move idealMove;
 //        if(AIType == 'minimax') {
-        Move idealMove = minimax.minimaxDecision(new GameBoard(currentBoardState.getBoard()), currentPlayer, this.depth);
+        if(currentPlayer == Player.YELLOW) {
+        	idealMove = yellowPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), currentPlayer, this.depth);
+        } else {
+        	idealMove = redPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), currentPlayer, this.depth);
+        }
+        
 //        } else if(AIType == 'alpha-beta') {
 //            idealMove = Minimax.alphaBetaSearch(currentBoardState, currentPlayer);
 //        }
@@ -114,7 +153,7 @@ public class Game {
 
         //ConnectFourBoard.setPiece(currentRow, currentColumn, currentPlayer);
         ConnectFourBoard.setPiece(currentColumn, currentPlayer);
-        System.out.println("End state 1: \n" + ConnectFourBoard);
+        System.out.println("End state : \n" + ConnectFourBoard);
         
         // TODO
         //checkGameCompleted();
@@ -127,9 +166,9 @@ public class Game {
     };
 	
 	public static void main(String[] args) {
-		Game game = new Game(6, 7, 0, 1, 5);
-		
-		String move = game.AIPlay();
-		System.out.println(move);
+//		Game game = new Game(6, 7, 0, 1, 5);
+//		
+//		String move = game.AIPlay();
+//		System.out.println(move);
 	}
 }
