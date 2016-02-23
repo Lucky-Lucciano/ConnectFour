@@ -115,10 +115,10 @@ public class Minimax extends Algorithm{
         } else if(lowerDepth <= 0) {
         	int eval;
         	if(deadType == 1) {
-        		System.out.println("MAX Using improved for player : " + Max);
+//        		System.out.println("MAX Using improved for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
         	} else {
-        		System.out.println("MAX Using BAAADD for player : " + Max);
+//        		System.out.println("MAX Using BAAADD for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
         	}
         	
@@ -151,10 +151,10 @@ public class Minimax extends Algorithm{
         } else if(lowerDepth <= 0) {
         	int eval;
         	if(deadType == 1) {
-        		System.out.println("MIN Using improved for player : " + Max);
+//        		System.out.println("MIN Using improved for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
         	} else {
-        		System.out.println("MIN Using BAAADD for player : " + Max);
+//        		System.out.println("MIN Using BAAADD for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
         	}
 //            
