@@ -21,6 +21,7 @@ var YELLOW = 0,
     RED = 1;
 
 var vsAI = true,
+	firstRun = true,
 	yellowPlayerType,
 	redPlayerType;
 
@@ -28,7 +29,7 @@ function startNewGame() {
 	console.log("START !!");
 	function newGameResponse() {
 		/**
-		 * Ako nije human playerda odigra potez
+		 * Ako nije human player da onda samostalno odigra potez
 		 */
 		if(yellowPlayerType != 0) {
 			createAjaxRequest("POST", "/ConnectFour/req", ConnectFour.moveAI, JSON.stringify({
@@ -58,6 +59,13 @@ function startNewGame() {
      		autoPlay: document.getElementById('autoPlay').checked
      	}
  	}));
+	
+	if(firstRun) {
+		firstRun = false;
+	} else {
+		ConnectFour.init();
+	}
+		
 }
 
 function createAjaxRequest(method, URL, callback, data) {
@@ -75,8 +83,8 @@ function createAjaxRequest(method, URL, callback, data) {
 }
 
 var ConnectFour = (function(){
-	var turn = 0, //turn based
-	    board = [],
+	var turn, //turn based
+	    board,
 	    COLUMN_FULL = -2,
 	    EMPTY = -1,
 	    YELLOW = 0,
@@ -85,10 +93,9 @@ var ConnectFour = (function(){
 	var vsAI = true,
 		current;
 	
-	var init = function() {
-		//TODO DELETE
-		//startNewGame()
-		
+	var init = function() {		
+		turn = 0;
+		board = [];
 		
 		Crafty.init(600,500, document.getElementById('game'));
 	    //Crafty.canvas();
@@ -119,8 +126,10 @@ var ConnectFour = (function(){
 	                    this.x = column * 64;
 	                    this.gravity("stopper");
 	                    this.unbind("mousedown");
-
-	                    reset(column);
+	                    
+	                    setTimeout(function() {
+	                    	reset(column);
+	                    }, 1000)
 	                });
 	            }
 	        });

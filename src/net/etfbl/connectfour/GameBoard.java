@@ -12,8 +12,8 @@ public class GameBoard {
 	private static final int COLUMN_FULL = -2;
 	private static final int YELLOW = 0;
 	private static final int RED = 1;
-	public static final int YELLOW_WON = -1;
-	public static final int RED_WON = 1;
+	public static final int MIN_WON = -1;
+	public static final int MAX_WON = 1;
 	public static final int DRAW = 0;
 	
 	private int nRows;
@@ -102,11 +102,11 @@ public class GameBoard {
 		}
     }
 	
-	public Integer checkTerminalState(Move previousMove, Player previousPlayer) {
+	public Integer checkTerminalState(Move previousMove, Player previousPlayer, Player playerMax) {
 //		System.out.println("TERM check: " + previousMove.getRow());
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
 //			 System.out.println("TERM prev - " + previousPlayer + " value " + (previousPlayer == Player.RED ? RED_WON : YELLOW_WON));
-			return 10 * (previousPlayer == Player.RED ? RED_WON : YELLOW_WON);
+			return 10 * (previousPlayer == playerMax ? MAX_WON : MIN_WON);
 		} else if(checkDraw(previousMove.getRow(), previousMove.getColumn(), previousPlayer.ordinal())) {
 			return DRAW;
 		}

@@ -17,7 +17,7 @@ public class Heuristics {
 	 * @param previousPlayer
 	 * @return
 	 */
-	public static int stateEvaluationConnectFourSimple(GameBoard board, Player previousPlayer) {
+	public static int stateEvaluationConnectFourSimple(GameBoard board, Player player) {
 		GameBoard currentPosition = new GameBoard(board.getBoard());
 
 		
@@ -36,8 +36,8 @@ public class Heuristics {
 		//finds the heighest piece in each column touching another piece
 		int[] maxColumnTouchingValues = new int[7];
 		
-		System.out.println("----------------------------------------");
-		System.out.println("Starting board: \n" + board);
+//		System.out.println("----------------------------------------");
+//		System.out.println("Starting board: \n" + board);
 		
 		/**
 		 * NOTE:
@@ -62,14 +62,14 @@ public class Heuristics {
 			 * Ako je vrijednost slobodnog elementa, umanjenog za 1, sa jedne od susjednih kolona manja od 0 onda upisujemo tu vrijednost u suprotnome 0.
 			 */
 			maxColumnTouchingValues[x] = Math.min(0, upperElement - 1);
-			System.out.println("[" + x + "] "  + "MTV val: " + maxColumnTouchingValues[x] + "; LE: " + lowerElement + "; UE: " + upperElement);
+//			System.out.println("[" + x + "] "  + "MTV val: " + maxColumnTouchingValues[x] + "; LE: " + lowerElement + "; UE: " + upperElement);
 			/*if(maxColumnTouchingValues[x] < 0) {
 				System.out.println("[" + x + "] "  + "MTV val: " + maxColumnTouchingValues[x] + "; LE: " + lowerElement + "; UE: " + upperElement);
 			}*/
 		}
 		
-		System.out.println("freePosition: " + Arrays.toString(nextFreeRowPosition) + "\n"
-						+ "MTV: " + Arrays.toString(maxColumnTouchingValues) + "\n");
+//		System.out.println("freePosition: " + Arrays.toString(nextFreeRowPosition) + "\n"
+//						+ "MTV: " + Arrays.toString(maxColumnTouchingValues) + "\n");
 
 		int winningMoves = 0;
 		// Go trough all columns
@@ -79,7 +79,7 @@ public class Heuristics {
 			 *  Mislim da jeste jer ce ici od -1 do 0 ili 1, a treba da krene od freeColumn do vrha????
 			 */
 			for (int y = maxColumnTouchingValues[x]; y <= nextFreeRowPosition[x] ; y++){
-				System.out.println("[" + y + "] - [" + x + "]" + ((y >= 0 && x >= 0) ? currentPosition.getBoard()[y][x] : ""));
+//				System.out.println("[" + y + "] - [" + x + "]" + ((y >= 0 && x >= 0) ? currentPosition.getBoard()[y][x] : ""));
 				/**
 				 * Check if currently selected cell is empty
 				 */
@@ -89,7 +89,11 @@ public class Heuristics {
 					 */
 					currentPosition.getBoard()[y][x] = 1;
 					if(currentPosition.checkFour(y, x, 1)){
-						winningMoves++;
+						if(player == Player.RED) {
+							winningMoves++;	
+						} else {
+							winningMoves--;
+						}
 					} 
 					
 					/**
@@ -97,7 +101,11 @@ public class Heuristics {
 					 */
 					currentPosition.getBoard()[y][x] = 0;
 					if (currentPosition.checkFour(y, x, 0)){
-						winningMoves--;
+						if(player == Player.RED) {
+							winningMoves--;	
+						} else {
+							winningMoves++;
+						}
 					} 
 					
 					/**
@@ -108,13 +116,13 @@ public class Heuristics {
 			}
 		}
 		
-		System.out.println("----------------------------------------");
+//		System.out.println("----------------------------------------");
 
 		return winningMoves;
 		//return 0;
 	}
 	
-	public static int stateEvaluationConnectFourImproved(GameBoard board, Player previousPlayer) {
+	public static int stateEvaluationConnectFourImproved(GameBoard board, Player player) {
 		GameBoard currentPosition = new GameBoard(board.getBoard());
 		
 		//finds next valid move in all columns
@@ -136,7 +144,7 @@ public class Heuristics {
 			for (int y = nextFreeRowPosition[x]; y < board.getnRows(); y++){
 				/**
 				 * Check if currently selected cell is empty
-				 * Mor biti provjera Y jer ako je red pun vraca -2
+				 * Mora biti provjera Y jer ako je red pun vraca -2
 				 */
 				if(y > 0 && currentPosition.getBoard()[y][x] == -1){
 					/**
@@ -146,7 +154,11 @@ public class Heuristics {
 					if(currentPosition.checkFour(y, x, 1)){
 //						System.out.println("Red wining move [" + y + "] - [" + x + "]");
 						winningMovesRed++;
-						winningMoves++;
+						if(player == Player.RED) {
+							winningMoves++;	
+						} else {
+							winningMoves--;
+						}
 					} 
 					
 					/**
@@ -155,7 +167,11 @@ public class Heuristics {
 					currentPosition.getBoard()[y][x] = 0;
 					if(currentPosition.checkFour(y, x, 0)){
 						winningMovesYellow++;
-						winningMoves--;
+						if(player == Player.RED) {
+							winningMoves--;	
+						} else {
+							winningMoves++;
+						}
 					} 
 					
 					/**
@@ -166,7 +182,7 @@ public class Heuristics {
 			}
 		}
 		
-//		System.out.println("----- RED WIN MOVES: " + winningMovesRed + " - YELLOW WIN MOVES: " + winningMovesYellow + "----------------------------");
+//		System.out.println("----- RED WIN MOVES: " + winningMovesRed + " - YELLOW WIN MOVES: " + winningMovesYellow + "---  COMBINED: " + winningMoves + "-------------------------");
 
 		return winningMoves;
 		//return 0;

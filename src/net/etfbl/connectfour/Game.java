@@ -50,10 +50,11 @@ public class Game {
 		
 		switch(yellowPlayerType) {
 			case 0:
+				// HUMAN
 				this.yellowPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.yellowPlayerAlogrithm = new Minimax();
+				this.yellowPlayerAlogrithm = new Minimax(2);
 				break;
 			case 2:
 				alphaBetaPrune = new AlphaBetaPruning();
@@ -67,10 +68,11 @@ public class Game {
 		
 		switch(redPlayerType) {
 			case 0:
+				// HUMAN
 				this.redPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.redPlayerAlogrithm = new Minimax();
+				this.redPlayerAlogrithm = new Minimax(1);
 				break;
 			case 2:
 				alphaBetaPrune = new AlphaBetaPruning();
@@ -94,8 +96,9 @@ public class Game {
 	public String makeMove(int row, int col) {
 		/**
 		 * Provjera ako nije null, znaci da je current AI pa ne treba setovati piece jer se to vec radi u AIPlay
-		 */
-		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : redPlayerAlogrithm != null) && row != -1 && col != -1) {
+		 */		
+		
+		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : yellowPlayerAlogrithm == null) && row != -1 && col != -1) {
 			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 			ConnectFourBoard.setPiece(row, col, currentPlayer);
 			currentPlayer = getReversePlayer(currentPlayer);

@@ -15,13 +15,16 @@ import net.etfbl.connectfour.Game.Player;
 import net.etfbl.connectfour.GameBoard;
 import net.etfbl.connectfour.Move;
 
-public class Minimax extends Algorithm{
+public class Minimax extends Algorithm{	
 	Player Max;
 	Player Min;
+	
+	int deadType;
+	
 	List<Integer> probabilityDistribution = Arrays.asList(1, 2, 3, 4, 3, 2, 1);
 	
-	public Minimax() {
-		
+	public Minimax(int type) {
+		deadType = type;
 	}
 	
 	@Override
@@ -41,7 +44,7 @@ public class Minimax extends Algorithm{
 		for(int i = 0; i < possibleStateActions.size(); i++) {
 			currentAction = possibleStateActions.get(i);
 			
-			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), currentAction, Max), currentAction, Max, depth - 1));
+			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), currentAction, Max), currentAction, Max, depth));
 			
 //			System.out.println("MINIMAX Step: " + board + "; Max: " + Max);
 		}
@@ -78,14 +81,14 @@ public class Minimax extends Algorithm{
         List<Move> distr = new ArrayList<Move>();
         
         for (int i = 0; i < maxMoves.size(); i++) {
-        	System.out.println("MINIMAX Column (" + i +"): " + maxMoves.get(i).getColumn()
-    		+ " Prob " + probabilityDistribution.get(maxMoves.get(i).getColumn()));
         	for (int j = 0; j < probabilityDistribution.get(maxMoves.get(i).getColumn()); j++) {
         		distr.add(maxMoves.get(i));
         	}
 		}
         
         Move bestMove = distr.get(randInt(0, distr.size()));
+        
+        System.out.println("Best move [" + bestMove.getRow() + "][" + bestMove.getColumn() +"]");
         
         return bestMove;
         
@@ -104,13 +107,21 @@ public class Minimax extends Algorithm{
 	}
 	
 	private int maxValue(GameBoard board, Move previousMove, Player previousPlayer, int depth) {
-		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer, Max);
 		int lowerDepth = depth - 1;
 		
 		if(terminalState != null) {
             return terminalState;
         } else if(lowerDepth <= 0) {
-        	int eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+        	int eval;
+        	if(deadType == 1) {
+        		System.out.println("MAX Using improved for player : " + Max);
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+        	} else {
+        		System.out.println("MAX Using BAAADD for player : " + Max);
+        		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	}
+        	
 //            System.out.println("++ Max state evaluation: " + eval);
 //            return (previousPlayer == Player.RED ? GameBoard.RED_WON : GameBoard.YELLOW_WON) * eval;
             return eval;
@@ -131,15 +142,22 @@ public class Minimax extends Algorithm{
 	}
 	
 	private int minValue(GameBoard board, Move previousMove, Player previousPlayer, int depth) {
-		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer);
+		Integer terminalState = board.checkTerminalState(previousMove, previousPlayer, Max);
 //		int lowerDepth = depth;
 		int lowerDepth = depth - 1;
 		
 		if(terminalState != null) {
             return terminalState;
         } else if(lowerDepth <= 0) {
-        	int eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
-//            System.out.println("-- Min state evaluation: " + eval);
+        	int eval;
+        	if(deadType == 1) {
+        		System.out.println("MIN Using improved for player : " + Max);
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+        	} else {
+        		System.out.println("MIN Using BAAADD for player : " + Max);
+        		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	}
+//            
             return eval;
         }
 		

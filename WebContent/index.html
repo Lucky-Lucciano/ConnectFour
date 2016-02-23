@@ -33,7 +33,26 @@
 			z-index:1002;
 			overflow: auto;
 		}
-
+		
+		#gameSettings {
+			margin-bottom: 5px;
+			margin-top: 10px;
+			border: 1px black dashed;
+			padding: 8px;
+			width: 573px;
+		}
+		
+		#gameSettings div{
+			margin-bottom: 7px;
+		}
+		
+		.depth {
+			margin-left: 5px;
+		}
+		
+		.cuttoff {
+			width: 60px;
+		}
     </style>
   </head>
   <body>
@@ -42,28 +61,36 @@
 	</div>
    
     <div id="gameSettings">
-    	Yellow Player:
-		<select id="yellowMenu">
-			<option>Human</option>
-			<option>Minimax Simple</option>
-			<option selected="selected">Minimax Improved</option>
-			<option>Alphabeta</option>
-		</select>
-		Depth: <input type="number" id="cutoffYellow" min="1" value="5"/>
+	    <div>
+		    <span>Yellow Player:</span>
+			<select id="yellowMenu">
+				<option>Human</option>
+				<option selected="selected">Minimax Improved</option>
+				<option>Minimax Simple</option>
+				<option>Alphabeta</option>
+			</select>
+			<span>Depth:</span>
+			<input type="number" id="cutoffYellow" class="cuttoff" min="1" value="5"/>
+	    </div>
+		<div>
+			<span>Red Player:</span>
+			<select id="redMenu" style="margin-left: 21px">
+				<option>Human</option>
+				<option selected="selected">Minimax Improved</option>
+				<option>Minimax Simple</option>
+				<option>Alphabeta</option>
+			</select>
+			<span>Depth:</span>
+			<input type="number" id="cutoffRed" class="cuttoff" min="1" value="5"/>
+		</div>
+	
+		<div>
+			<label> <input type="checkbox" id="autoPlay"> Auto play? </label>
+		</div>
 		
-		<br>Red Player:
-		<select id="redMenu">
-			<option>Human</option>
-			<option selected="selected">Minimax Simple</option>
-			<option>Minimax Improved</option>
-			<option>Alphabeta</option>
-		</select>
-		Depth: <input type="number" id="cutoffRed" min="1" value="5"/>
-		
-		<br>
-		<label> Auto play? <input type="checkbox" id="autoPlay"></label><br>
-		<br>
 		<input value="Start Game" onclick="startNewGame();" type="button">
+<!-- 		<br> -->
+<!-- 		<input value="Reset" onclick="startNewGame();" type="button"> -->
 <!-- 		<input value="Step" id="stepButton" onclick="" type="button"> -->
 	</div>
 
