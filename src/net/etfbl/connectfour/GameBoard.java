@@ -77,6 +77,10 @@ public class GameBoard {
         return freeColumns;
     }
 	
+	public boolean isBoardFull() {
+    	return getFreeColumns().size() <= 0;
+    }
+	
 	public int findEmptyRow(int column) {
         //if(!board[column]) return;
         for(int i = 0; i < nRows; i++) {

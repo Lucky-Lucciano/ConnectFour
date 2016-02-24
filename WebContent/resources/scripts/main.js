@@ -23,7 +23,12 @@ var YELLOW = 0,
 var vsAI = true,
 	firstRun = true,
 	yellowPlayerType,
-	redPlayerType;
+	redPlayerType,
+	scoreboardYellow = document.getElementById('yellowScore'),
+	scoreboardRed = document.getElementById('redScore'),
+	scoreboardDraw = document.getElementById('drawScore'),
+	autoPlay;
+
 
 function startNewGame() {
 	console.log("START !!");
@@ -45,6 +50,7 @@ function startNewGame() {
 	
 	yellowPlayerType = document.getElementById('yellowMenu').selectedIndex;
 	redPlayerType = document.getElementById('redMenu').selectedIndex;
+	autoPlay = document.getElementById('autoPlay').checked;
 	
 	createAjaxRequest("POST", "/ConnectFour/req", newGameResponse, JSON.stringify({
  		type: 0,
@@ -56,12 +62,15 @@ function startNewGame() {
      		red: redPlayerType,
      		yellowDepth: parseInt(document.getElementById('cutoffYellow').value),
      		redDepth: parseInt(document.getElementById('cutoffRed').value),
-     		autoPlay: document.getElementById('autoPlay').checked
+     		autoPlay: autoPlay
      	}
  	}));
 	
 	if(firstRun) {
 		firstRun = false;
+		scoreboardRed.value = 0;
+		scoreboardYellow.value = 0;
+		scoreboardDraw.value = 0;
 	} else {
 		ConnectFour.init();
 	}
@@ -285,12 +294,27 @@ var ConnectFour = (function(){
     }
     
     function moveAI(result) {
-    	var moveDecision = JSON.parse(result),
-    		column = moveDecision.column;
+    	var response = JSON.parse(result),
+    		column = response.column,
+    		gameResult = response.gameResult;
     	
-    	current.startDrag();
-    	current.attr({x: 64 * column, y: 0});
-    	current.stopDrag();
+    	if(gameResult != -1) {
+    		if(gameResult == 0){
+    			scoreboardYellow.value = parseInt(scoreboardYellow.value) + 1;
+    		} else if(gameResult == 1) {
+    			scoreboardRed.value = parseInt(scoreboardRed.value) + 1;
+    		} else if(gameResult = 2) {
+    			scoreboardDraw.value = parseInt(scoreboardDraw.value) + 1;
+    		}
+    		
+    		if(autoPlay) {
+    			startNewGame();
+    		}
+    	} else {
+    		current.startDrag();
+        	current.attr({x: 64 * column, y: 0});
+        	current.stopDrag();
+    	}
     }
 
 	return {

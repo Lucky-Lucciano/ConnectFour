@@ -24,7 +24,7 @@ public class Request extends HttpServlet {
 	
 	// Depth == 4 - 50% win rate for me
 	// Depth == 5 - 1% win rate for me
-	private static final int DEPTH = 8;
+	private static final int DEPTH = 4;
     
 	public Game game;
 
@@ -67,7 +67,7 @@ public class Request extends HttpServlet {
 			return;
 		}
 		
-		System.out.println("SESSION ID: " + request.getSession().getId());
+//		System.out.println("SESSION ID: " + request.getSession().getId());
 		
 		switch(requestObj.get("type").getAsInt()) {
 			case 0:

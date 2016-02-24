@@ -1,6 +1,10 @@
 package net.etfbl.connectfour;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import net.etfbl.connectfour.algorithms.AStar;
@@ -34,7 +38,7 @@ public class Game {
 	}
 	
 	public Game(int nRows, int nCols, int startingPlayer, int yellowPlayerType, int redPlayerType, boolean autoplay, int depth) {
-		ConnectFourBoard = new GameBoard(nRows, nCols);
+		this.ConnectFourBoard = new GameBoard(nRows, nCols);
 		
 //		this.AIType = AIType;
 		this.player1 = Player.values()[startingPlayer];
@@ -54,7 +58,7 @@ public class Game {
 				this.yellowPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.yellowPlayerAlogrithm = new Minimax(2);
+				this.yellowPlayerAlogrithm = new Minimax(1);
 				break;
 			case 2:
 				alphaBetaPrune = new AlphaBetaPruning();
@@ -72,7 +76,7 @@ public class Game {
 				this.redPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.redPlayerAlogrithm = new Minimax(1);
+				this.redPlayerAlogrithm = new Minimax(2);
 				break;
 			case 2:
 				alphaBetaPrune = new AlphaBetaPruning();
@@ -107,8 +111,7 @@ public class Game {
 		}
 		
 //		if(AIType != 0) {
-			String abc = AIPlay();
-			return abc;
+		return AIPlay();
 //		}
 		
 //		return "";
@@ -162,11 +165,44 @@ public class Game {
         //checkGameCompleted();
         
         Gson gson = new Gson();
-
-        currentPlayer = getReversePlayer(currentPlayer);
+//        Gson gson =  new GsonBuilder().create();
+//        gson.toJson("Hello");
+//        gson.toJson(123);
+        Map<String, Integer> resultsMap = new HashMap<String, Integer>();
+        resultsMap.put("row", idealMove.getRow());
+        resultsMap.put("column", idealMove.getColumn());
+        resultsMap.put("gameResult", checkGameCompleted(currentRow, currentColumn));
         
-        return gson.toJson(idealMove);
+        currentPlayer = getReversePlayer(currentPlayer);
+//        if() {
+//        	return  gson.toJson(idealMove)
+//        }
+//        return gson.toJson(idealMove);
+        return gson.toJson(resultsMap);
     };
+    
+    /**
+     * Provjera da li je poslednji odigrani potez rezultirao spajanjem 4 u nizu
+     * 
+     * @param currentRow
+     * @param currentColumn
+     * @return Redni broj igraca koji je pobijedio (YELLOW = 0, RED = 1) ili igra jos traje pa vrati po defaultu -1
+     */
+    private Integer checkGameCompleted(int currentRow, int currentColumn) {
+    	int lastPlayer = (currentPlayer == Player.YELLOW ? 0 : 1);
+    	int result;
+    	
+    	if(ConnectFourBoard.checkFour(currentRow, currentColumn, lastPlayer)) {
+    		result = lastPlayer;
+    	} else if(ConnectFourBoard.isBoardFull()) {
+    		System.out.println("BOARD FULL!!");
+    		result = 2;
+    	} else {
+    		result = -1;
+    	}
+    	
+    	return result;
+    }
 	
 	public static void main(String[] args) {
 //		Game game = new Game(6, 7, 0, 1, 5);

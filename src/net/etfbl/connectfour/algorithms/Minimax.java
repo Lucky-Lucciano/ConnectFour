@@ -19,12 +19,12 @@ public class Minimax extends Algorithm{
 	Player Max;
 	Player Min;
 	
-	int deadType;
+	int evalType;
 	
 	List<Integer> probabilityDistribution = Arrays.asList(1, 2, 3, 4, 3, 2, 1);
 	
 	public Minimax(int type) {
-		deadType = type;
+		evalType = type;
 	}
 	
 	@Override
@@ -114,7 +114,7 @@ public class Minimax extends Algorithm{
             return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval;
-        	if(deadType == 1) {
+        	if(evalType == 1) {
 //        		System.out.println("MAX Using improved for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
         	} else {
@@ -150,7 +150,7 @@ public class Minimax extends Algorithm{
             return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval;
-        	if(deadType == 1) {
+        	if(evalType == 1) {
 //        		System.out.println("MIN Using improved for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
         	} else {
