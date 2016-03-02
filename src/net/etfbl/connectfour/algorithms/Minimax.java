@@ -29,6 +29,7 @@ public class Minimax extends Algorithm{
 	
 	@Override
 	public Move getIdealMove(GameBoard board, Player player, int depth) {
+		System.out.println("START Minimax for " + player + "; algo type: [" + this.evalType + "]");
 		return minimaxDecision(board, player, depth);
 	}
 	
@@ -111,12 +112,14 @@ public class Minimax extends Algorithm{
 		int lowerDepth = depth - 1;
 		
 		if(terminalState != null) {
-            return terminalState;
+			return terminalState * depth;
+            //return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval;
         	if(evalType == 1) {
 //        		System.out.println("MAX Using improved for player : " + Max);
-        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+//        		eval = Heuristics.stateEvaluationConnectFourGaussian(new GameBoard(board.getBoard()), previousPlayer);
+        		eval = (int) Math.round(Heuristics.stateEvaluationConnectFourGaussian(new GameBoard(board.getBoard()), previousPlayer) / 10);
         	} else {
 //        		System.out.println("MAX Using BAAADD for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
@@ -147,12 +150,14 @@ public class Minimax extends Algorithm{
 		int lowerDepth = depth - 1;
 		
 		if(terminalState != null) {
-            return terminalState;
+			return terminalState * depth;
+            //return terminalState;
         } else if(lowerDepth <= 0) {
         	int eval;
         	if(evalType == 1) {
 //        		System.out.println("MIN Using improved for player : " + Max);
-        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+//        		int a = 
+        		eval = (int) Math.round(Heuristics.stateEvaluationConnectFourGaussian(new GameBoard(board.getBoard()), previousPlayer) / 10);
         	} else {
 //        		System.out.println("MIN Using BAAADD for player : " + Max);
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);

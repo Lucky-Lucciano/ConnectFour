@@ -29,8 +29,8 @@ public class Game {
 	
 	private GameBoard ConnectFourBoard;
 	
-	Minimax minimax;
-	AlphaBetaPruning alphaBetaPrune;
+//	Minimax minimax;
+//	AlphaBetaPruning alphaBetaPrune;
 	AStar astar;
 	
 	public enum Player {
@@ -61,10 +61,13 @@ public class Game {
 				this.yellowPlayerAlogrithm = new Minimax(1);
 				break;
 			case 2:
-				alphaBetaPrune = new AlphaBetaPruning();
+				this.yellowPlayerAlogrithm = new Minimax(2);
 				break;
 			case 3:
-				astar = new AStar();
+				this.yellowPlayerAlogrithm = new AlphaBetaPruning(1);
+				break;
+			case 4:
+				this.yellowPlayerAlogrithm = new AlphaBetaPruning(2);
 				break;
 			default:
 				break;
@@ -76,13 +79,16 @@ public class Game {
 				this.redPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.redPlayerAlogrithm = new Minimax(2);
+				this.redPlayerAlogrithm = new Minimax(1);
 				break;
 			case 2:
-				alphaBetaPrune = new AlphaBetaPruning();
+				this.redPlayerAlogrithm = new Minimax(2);
 				break;
 			case 3:
-				astar = new AStar();
+				this.redPlayerAlogrithm = new AlphaBetaPruning(1);
+				break;
+			case 4:
+				this.redPlayerAlogrithm = new AlphaBetaPruning(2);
 				break;
 			default:
 				break;

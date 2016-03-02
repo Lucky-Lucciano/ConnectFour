@@ -30,8 +30,17 @@ var vsAI = true,
 	autoPlay;
 
 
+function toggleStartInstructions(show) {
+	if(show) {
+		document.getElementById('curtain').style.display = "block";
+	} else {
+		document.getElementById('curtain').style.display = "none";
+	}
+}
+
 function startNewGame() {
-	console.log("START !!");
+	toggleStartInstructions(false);
+	
 	function newGameResponse() {
 		/**
 		 * Ako nije human player da onda samostalno odigra potez

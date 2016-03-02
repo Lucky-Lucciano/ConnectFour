@@ -146,7 +146,7 @@ public class Heuristics {
 				 * Check if currently selected cell is empty
 				 * Mora biti provjera Y jer ako je red pun vraca -2
 				 */
-				if(y > 0 && currentPosition.getBoard()[y][x] == -1){
+				if(y >= 0 && currentPosition.getBoard()[y][x] == -1){
 					/**
 					 * Simulate RED's next move and check if he has won
 					 */
@@ -186,5 +186,55 @@ public class Heuristics {
 
 		return winningMoves;
 		//return 0;
+	}
+	
+	public static int stateEvaluationConnectFourGaussian(GameBoard board, Player player) {
+		GameBoard currentPosition = new GameBoard(board.getBoard());
+		int[][] evaluationTable = {{3, 4, 5, 7, 5, 4, 3}, 
+					               {4, 6, 8, 10, 8, 6, 4},
+					               {5, 8, 11, 13, 11, 8, 5}, 
+					               {5, 8, 11, 13, 11, 8, 5},
+					               {4, 6, 8, 10, 8, 6, 4},
+					               {3, 4, 5, 7, 5, 4, 3}};
+		
+		int utility = 138;
+        int sum = 0;
+        for (int i = 0; i < board.getnRows(); i++)
+            for (int j = 0; j <board.getnCols(); j++)
+                if(currentPosition.getBoard()[i][j] == 1) {
+                    if(player == Player.RED) {
+						sum += evaluationTable[i][j];
+					} else {
+						sum -= evaluationTable[i][j];
+					}
+                } else if(currentPosition.getBoard()[i][j] == 0) {
+                    if(player == Player.RED) {
+                    	sum -= evaluationTable[i][j];
+					} else {
+						sum += evaluationTable[i][j];
+					}
+                }
+        
+        return utility + sum;
+	}
+	
+	public static int stateEvaluationConnectFourLongestChain(GameBoard board, Player player) {
+		GameBoard currentPosition = new GameBoard(board.getBoard());
+		/*int score = board.longest_chain(board.get_current_player_id()) * 10
+		for(int i = 0; i < board.getnRows(); i++) {			
+			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
+			// nefikasno sada
+			for(int j = 0; j < board.getnCols(); j++){
+                if(board.get_cell(row, col) == board.get_current_player_id()) {
+                	score -= abs(3-col)
+                } else if(board.get_cell(row, col) == board.get_other_player_id()) {
+                    score += abs(3-col)
+                }
+
+			}
+		}
+			
+		return score;*/
+		return 0;
 	}
 }
