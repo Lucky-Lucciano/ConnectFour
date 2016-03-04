@@ -54,7 +54,7 @@ public class Minimax extends Algorithm{
 		
 		double max = Double.NEGATIVE_INFINITY;
         int maxKey = 0;
-        List<Move>  maxMoves = new ArrayList<Move>();
+        List<Move> maxMoves = new ArrayList<Move>();
 
         for (int i = 0; i < actionUtilities.size(); i++) {
         	System.out.println("MINIMAX Result (" + i +"): " + actionUtilities.get(i) 
