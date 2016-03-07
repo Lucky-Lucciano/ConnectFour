@@ -7,8 +7,15 @@ import java.util.List;
 import net.etfbl.connectfour.Game.Player;
 import net.etfbl.connectfour.GameBoard;
 import net.etfbl.connectfour.Move;
+import net.etfbl.connectfour.Utility;
 
 public class Heuristics {
+	public static final int[][] evaluationTableConnectFour = {{3, 4, 5, 7, 5, 4, 3}, 
+													          {4, 6, 8, 10, 8, 6, 4},
+													          {5, 8, 11, 13, 11, 8, 5}, 
+													          {5, 8, 11, 13, 11, 8, 5},
+													          {4, 6, 8, 10, 8, 6, 4},
+													          {3, 4, 5, 7, 5, 4, 3}};
 	
 	/**
 	 * Jednostavna eval funkcija koja broji broj mjesta gdje se 3 chipa potencijalno dodiruju (nedostaje 1 u za kombinaciju od 4)
@@ -19,7 +26,6 @@ public class Heuristics {
 	 */
 	public static int stateEvaluationConnectFourSimple(GameBoard board, Player player) {
 		GameBoard currentPosition = new GameBoard(board.getBoard());
-
 		
 		/*
 		List<Move> nextFreeRowPosition = new ArrayList<Move>();
@@ -159,7 +165,16 @@ public class Heuristics {
 						} else {
 							winningMoves--;
 						}
-					} 
+					} else if(currentPosition.tripleFork(new Move(y, x), Player.RED)) {
+						System.out.println("FOOOOOOOORKEEEEEDD");
+						
+						System.out.println("End state : \n" + currentPosition);
+						/*if(player == Player.RED) {
+							winningMoves++;	
+						} else {
+							winningMoves--;
+						}*/
+					}
 					
 					/**
 					 * Simulate YELLOW's next move and check if he has won
@@ -236,5 +251,110 @@ public class Heuristics {
 			
 		return score;*/
 		return 0;
+	}
+	
+	public static int stateEvaluationConnectFourFork(GameBoard board, Player player) {
+		GameBoard currentPosition = new GameBoard(board.getBoard());
+		/*int score = board.longest_chain(board.get_current_player_id()) * 10
+		for(int i = 0; i < board.getnRows(); i++) {			
+			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
+			// nefikasno sada
+			for(int j = 0; j < board.getnCols(); j++){
+                if(board.get_cell(row, col) == board.get_current_player_id()) {
+                	score -= abs(3-col)
+                } else if(board.get_cell(row, col) == board.get_other_player_id()) {
+                    score += abs(3-col)
+                }
+
+			}
+		}
+			
+		return score;*/
+		return 0;
+	}
+	
+	public static Move evaluatedStartingMoveConnectFour(GameBoard board, Player player, int ply) {
+		List<Move> possibleStateActions = board.stateActions();
+		
+		int[] nextFreeRowPosition = new int[7];
+		for (int x = 0; x < board.getnCols(); x++){
+			nextFreeRowPosition[x] = board.findEmptyRow(x);
+		}
+		
+		Move idealMove = null;
+		
+		switch(ply) {
+			case 1:
+				/**
+				 * Prvi potez, statisticki gledano, najbolje je odgirati u centralnoj koloni
+				 */
+				idealMove = new Move(3, 3);
+				break;
+			case 2:
+				/**
+				 * Prvi potez, statisticki gledano, najbolje je odgirati u centralnoj koloni
+				 */
+				List<Integer> secondMoveDistribution;
+				if(nextFreeRowPosition[3] == GameBoard.EMPTY) {
+					secondMoveDistribution = Arrays.asList(0, 1, 4, 9, 4, 1, 0);
+				} else {
+					secondMoveDistribution = Arrays.asList(0, 1, 3, 5, 3, 1, 0);
+				}
+				
+				idealMove = Utility.randomlyDistributedMove(possibleStateActions, secondMoveDistribution);
+				break;
+			default:
+				break;
+		}
+		
+		return idealMove;
+	}
+	
+	/**
+	 * Pomocna metoda koja vraca random move zasnovan na evaluation tabeli ukoliko prvih nekoliko poteza algoritam vraca draw poziciju
+	 * i bira prvu kolonu 
+	 * @param board
+	 * @param player
+	 * @param ply
+	 * @return 
+	 */
+	public static Move evaluatedMidStartMoveConnectFour(GameBoard board, Player player, int ply) {
+		List<Move> possibleStateActions = board.stateActions();
+		
+		int[] nextFreeRowPosition = new int[7];
+		for (int x = 0; x < board.getnCols(); x++){
+			nextFreeRowPosition[x] = board.findEmptyRow(x);
+		}
+		
+		Move idealMove = null;
+	
+		for (int x = 0; x < board.getnCols(); x++){
+			nextFreeRowPosition[x] = board.findEmptyRow(x);
+		}
+		List<Integer> lowerRowStandardDistribution = Arrays.asList(
+														evaluationTableConnectFour[0][0],
+														evaluationTableConnectFour[0][1],
+														evaluationTableConnectFour[0][2],
+														evaluationTableConnectFour[0][3],
+														evaluationTableConnectFour[0][4],
+														evaluationTableConnectFour[0][5],
+														evaluationTableConnectFour[0][6]
+													);
+//		if(nextFreeRowPosition[3] == GameBoard.EMPTY) {
+//			secondMoveDistribution = Arrays.asList(0, 1, 4, 9, 4, 1, 0);
+//		} else {
+//		secondMoveDistribution = Arrays.asList(3, 4, 5, 7, 5, 4, 3);
+//		}
+		
+		idealMove = Utility.randomlyDistributedMove(possibleStateActions, lowerRowStandardDistribution);
+
+		
+		return idealMove;
+	}
+	
+	public static void main(String[] args) {
+		Integer[] data = new Integer[7];
+		Arrays.fill(data, evaluationTableConnectFour[0]);
+		System.out.println(data);
 	}
 }

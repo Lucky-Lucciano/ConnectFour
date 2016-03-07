@@ -8,10 +8,10 @@ import java.util.List;
 import net.etfbl.connectfour.Game.Player;
 
 public class GameBoard {
-	private static final int EMPTY = -1;
 	private static final int COLUMN_FULL = -2;
 	private static final int YELLOW = 0;
 	private static final int RED = 1;
+	public static final int EMPTY = -1;
 	public static final int MAX_WON = 1;
 	public static final int MIN_WON = -1;
 	public static final int DRAW = 0;
@@ -108,16 +108,116 @@ public class GameBoard {
 	
 	public Integer checkTerminalState(Move previousMove, Player previousPlayer, Player playerMax) {
 //		System.out.println("TERM check: " + previousMove.getRow());
-		int currentPlayerVal = previousPlayer == Player.YELLOW ? YELLOW : RED;
+		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
 		
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
 //			 System.out.println("TERM prev - " + previousPlayer + " value " + (previousPlayer == Player.RED ? RED_WON : YELLOW_WON));
-			return 10 * (previousPlayer == playerMax ? MAX_WON : MIN_WON);
+			return 4 * (previousPlayer == playerMax ? MAX_WON : MIN_WON);
 		} else if(checkDraw(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
+			System.out.println("DRAAAAAAAAAAAAAAAAAAAAAAWWWWWWWWWWWWWWWWWWWWWW " + DRAW);
 			return DRAW;
 		}
 		
 		return null;
+	}
+	
+	public boolean checkGameEnd(Move previousMove, Player previousPlayer){
+		boolean fourConnected = false;
+		int x = previousMove.getRow();
+		int y = previousMove.getColumn();
+//		if(this.board[x][y] != 0) {
+			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, 0);
+			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, -1);
+			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 0, 1);
+			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, 1);
+//		}
+		return fourConnected;
+	}
+	
+	public boolean check4(Player previousPlayer, int x, int y, int dx, int dy) {
+		int length = 1;
+		int i = 1;
+		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
+		
+		while(this.isValidMove(x + dx*i, y + dy*i)) {
+			if(this.board[x + dx*i][y + dy*i] == currentPlayerVal) {
+				length++;
+				i++;
+			}
+			else {
+				break;
+			}
+		}
+		i = -1;
+		while(this.isValidMove(x+ dx*i,y+ dy*i)) {
+			if(this.board[x+ dx*i][y+ dy*i] == currentPlayerVal) {
+				length++;
+				i--;
+			}
+			else {
+				break;
+			}
+		}
+
+		return (length >= 4);
+	}
+	
+	public boolean tripleFork(Move previousMove, Player previousPlayer){
+		boolean isForked = false;
+		int x = previousMove.getRow();
+		int y = previousMove.getColumn();
+//		if(this.board[x][y] != 0) {
+		
+		// VERTIKALNO - kolona miruje (0) dok se redovi pomjeraju obostrano
+//		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, 0);
+		// HORIZONTALNO - red miruje (0) dok se kolone pomjeraju obostrano
+		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 0, 1);
+		// DIJAGONALA - odozgo ka dole 
+		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, -1);
+		// DIJAGONALA - odzdo ka gore 
+		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, 1);
+//		}
+		return isForked;
+	}
+	
+	public boolean check3Fork(Player previousPlayer, int x, int y, int dx, int dy) {
+		int length = 1;
+		int i = 1;
+		int alphaBorder = -1;
+		int omegaBorder = -1;
+		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
+		
+		while(this.isValidMove(x + dx*i, y + dy*i)) {
+			if(this.board[x + dx*i][y + dy*i] == currentPlayerVal) {
+				length++;
+				i++;
+			}
+			else {
+				alphaBorder = i;
+				break;
+			}
+		}
+		
+		i = -1;
+		while(this.isValidMove(x+ dx*i,y+ dy*i)) {
+			if(this.board[x + dx*i][y + dy*i] == currentPlayerVal) {
+				length++;
+				i--;
+			}
+			else {
+				omegaBorder = i;
+				break;
+			}
+		}
+
+		if(length >= 3) {
+			if(this.isValidMove(x + dx*alphaBorder, y + dy*alphaBorder) && this.isValidMove(x + dx*omegaBorder, y + dy*omegaBorder) &&
+									this.board[x + dx*alphaBorder][y + dy*alphaBorder] == EMPTY && this.board[x + dx*omegaBorder][y + dy*omegaBorder] == EMPTY) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private boolean checkDraw(int row, int column, int player) {
@@ -261,6 +361,11 @@ public class GameBoard {
         }
         return counter >= 4;
     }
+	
+	//returns true if the chip is on the board
+	public boolean isValidMove(int row, int column) {
+		return (0 <= row && row < this.nRows && 0 <= column && column < this.nCols);
+	}
 	
 	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
 //		System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());

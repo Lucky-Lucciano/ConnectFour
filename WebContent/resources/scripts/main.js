@@ -77,9 +77,9 @@ function startNewGame() {
 	
 	if(firstRun) {
 		firstRun = false;
-		scoreboardRed.value = 0;
-		scoreboardYellow.value = 0;
-		scoreboardDraw.value = 0;
+		scoreboardRed.innerHTML = 0;
+		scoreboardYellow.innerHTML = 0;
+		scoreboardDraw.innerHTML = 0;
 	} else {
 		ConnectFour.init();
 	}
@@ -309,11 +309,11 @@ var ConnectFour = (function(){
     	
     	if(gameResult != -1) {
     		if(gameResult == 0){
-    			scoreboardYellow.value = parseInt(scoreboardYellow.value) + 1;
+    			scoreboardYellow.innerHTML = parseInt(scoreboardYellow.innerHTML) + 1;
     		} else if(gameResult == 1) {
-    			scoreboardRed.value = parseInt(scoreboardRed.value) + 1;
+    			scoreboardRed.innerHTML = parseInt(scoreboardRed.innerHTML) + 1;
     		} else if(gameResult = 2) {
-    			scoreboardDraw.value = parseInt(scoreboardDraw.value) + 1;
+    			scoreboardDraw.innerHTML = parseInt(scoreboardDraw.innerHTML) + 1;
     		}
     		
     		if(autoPlay) {

@@ -15,41 +15,38 @@ import net.etfbl.connectfour.algorithms.Minimax;
 public class Game {
 //	private static final int DEPTH = 50;
 	
-	private int AIType;
 	private Player player1;
 	private Player player2;
 	private int player1Score;
 	private int player2Score;
 	private Player currentPlayer;
 	private boolean gameActive;
-	private int depth;
+	private int depthYellow;
+	private int depthRed;
 	private Algorithm yellowPlayerAlogrithm;
 	private Algorithm redPlayerAlogrithm;
 	private boolean autoPlay;
-	
 	private GameBoard ConnectFourBoard;
-	
-//	Minimax minimax;
-//	AlphaBetaPruning alphaBetaPrune;
-	AStar astar;
+	// Redni broj poteza
+	private int plyNumber;
 	
 	public enum Player {
 		YELLOW, RED
 	}
 	
-	public Game(int nRows, int nCols, int startingPlayer, int yellowPlayerType, int redPlayerType, boolean autoplay, int depth) {
+	public Game(int nRows, int nCols, int startingPlayer, int yellowPlayerType, int redPlayerType, boolean autoplay, int depthYellow,  int depthRed) {
 		this.ConnectFourBoard = new GameBoard(nRows, nCols);
 		
-//		this.AIType = AIType;
+		System.out.println("Starting new game... ");
 		this.player1 = Player.values()[startingPlayer];
 		this.player2 = getReversePlayer(player1);
 		this.player1Score = 0;
 		this.player2Score = 0;
+		this.plyNumber = 0;
 		this.currentPlayer = this.player1;
 		this.gameActive = true;
-		this.depth = depth;
-//		this.yellowPlayerType = ;
-//		this.redPlayerType;
+		this.depthYellow = depthYellow;
+		this.depthRed = depthRed;
 		this.autoPlay = autoplay;
 		
 		switch(yellowPlayerType) {
@@ -58,16 +55,16 @@ public class Game {
 				this.yellowPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.yellowPlayerAlogrithm = new Minimax(1);
+				this.yellowPlayerAlogrithm = new Minimax(Player.YELLOW, 1);
 				break;
 			case 2:
-				this.yellowPlayerAlogrithm = new Minimax(2);
+				this.yellowPlayerAlogrithm = new Minimax(Player.YELLOW, 2);
 				break;
 			case 3:
-				this.yellowPlayerAlogrithm = new AlphaBetaPruning(1);
+				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 1);
 				break;
 			case 4:
-				this.yellowPlayerAlogrithm = new AlphaBetaPruning(2);
+				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 2);
 				break;
 			default:
 				break;
@@ -79,16 +76,16 @@ public class Game {
 				this.redPlayerAlogrithm = null;
 				break;
 			case 1:
-				this.redPlayerAlogrithm = new Minimax(1);
+				this.redPlayerAlogrithm = new Minimax(Player.RED, 1);
 				break;
 			case 2:
-				this.redPlayerAlogrithm = new Minimax(2);
+				this.redPlayerAlogrithm = new Minimax(Player.RED, 2);
 				break;
 			case 3:
-				this.redPlayerAlogrithm = new AlphaBetaPruning(1);
+				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 1);
 				break;
 			case 4:
-				this.redPlayerAlogrithm = new AlphaBetaPruning(2);
+				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 2);
 				break;
 			default:
 				break;
@@ -105,15 +102,15 @@ public class Game {
 
 	public String makeMove(int row, int col) {
 		/**
-		 * Provjera ako nije null, znaci da je current AI pa ne treba setovati piece jer se to vec radi u AIPlay
+		 * Provjera ako nije null, znaci da je trenutno na potezu AI pa ne treba setovati piece jer se to vec radi u AIPlay
+		 * 
+		 * ATN: Ako je trenutni igrac HUMAN i nije prvi potez u pitanju da se registruje odigrani HUMAN potez i proslijedi dalje da AI odigra svoj
 		 */		
-		
+		// TODO Zasto se smatra da poslje covjeka mora AI odigrati? Modfikovati da je moguce HUMAN vs HUMAN
 		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : yellowPlayerAlogrithm == null) && row != -1 && col != -1) {
 			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 			ConnectFourBoard.setPiece(row, col, currentPlayer);
 			currentPlayer = getReversePlayer(currentPlayer);
-		} else {
-			System.out.println("First move - player:s " + currentPlayer);
 		}
 		
 //		if(AIType != 0) {
@@ -128,8 +125,10 @@ public class Game {
             return null;
         }
         
+        this.plyNumber++;
+        
         GameBoard currentBoardState = new GameBoard(ConnectFourBoard.getBoard());
-        Integer[][] hhh = {
+        Integer[][] testState = {
         		{1, 0, 1, 0, 0, 1, 0},
         		{1, 0, 1, 0, 0, 1, 0},
         		{0, 1, 0, 1, 1, 0, 1},
@@ -148,9 +147,9 @@ public class Game {
         Move idealMove;
 //        if(AIType == 'minimax') {
         if(currentPlayer == Player.YELLOW) {
-        	idealMove = yellowPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), currentPlayer, this.depth);
+        	idealMove = yellowPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), this.depthYellow, this.plyNumber);
         } else {
-        	idealMove = redPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), currentPlayer, this.depth);
+        	idealMove = redPlayerAlogrithm.getIdealMove(new GameBoard(currentBoardState.getBoard()), this.depthRed, this.plyNumber);
         }
         
 //        } else if(AIType == 'alpha-beta') {
@@ -166,6 +165,7 @@ public class Game {
         //ConnectFourBoard.setPiece(currentRow, currentColumn, currentPlayer);
         ConnectFourBoard.setPiece(currentColumn, currentPlayer);
         System.out.println("End state : \n" + ConnectFourBoard);
+        System.out.println("-------------------------------------------------");
         
         // TODO
         //checkGameCompleted();

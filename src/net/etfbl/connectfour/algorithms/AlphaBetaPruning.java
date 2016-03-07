@@ -9,6 +9,7 @@ import java.util.Random;
 
 import net.etfbl.connectfour.GameBoard;
 import net.etfbl.connectfour.Move;
+import net.etfbl.connectfour.Utility;
 import net.etfbl.connectfour.Game.Player;
 
 public class AlphaBetaPruning extends Algorithm{
@@ -16,47 +17,62 @@ public class AlphaBetaPruning extends Algorithm{
 	private static final Double betaNuclearOption = Double.POSITIVE_INFINITY;
 	private static final List<Integer> probabilityDistribution = Arrays.asList(1, 2, 3, 4, 3, 2, 1);
     
-	Player Max;
-	Player Min;
-	Move bestMove;
-	List<Move> maxMoves = new ArrayList<Move>();
+	private Player Max;
+	private Player Min;
+	private Move bestMove;
+	private List<Move> maxMoves = new ArrayList<Move>();
+	private int currentPly;
+	private boolean isUnevaluatedMove;
 	
-	int evalType;
+	private int evalType;
 	
-	public AlphaBetaPruning(int type) {
-		evalType = type;
+	public AlphaBetaPruning(Player maxPlayer, int type) {
+		this.Max = maxPlayer;
+		this.Min = Utility.oppositePlayer(maxPlayer);
+		this.evalType = type;
 	}
 	
 	@Override
-	public Move getIdealMove(GameBoard board, Player player, int depth) {
-		System.out.println("START AlphaBeta for " + player + "; algo type: [" + this.evalType + "]");
-		this.Max = player;
-		this.Min = getReversePlayer(player);
+	public Move getIdealMove(GameBoard board, int depth, int ply) {
+//		System.out.println("START AlphaBeta for " + player + "; algo type: [" + this.evalType + "]");
+//		this.Max = player;
+//		this.Min = getReversePlayer(player);
 		this.bestMove = null;
 		this.maxMoves.clear();
-		return alphaBetaDecision(board, player, depth);
+		this.currentPly = ply;
+		this.isUnevaluatedMove = false;
+		
+		return alphaBetaDecision(board, depth);
 	}
 	
-	public Move alphaBetaDecision(GameBoard board, Player player, int depth) {
+	public Move alphaBetaDecision(GameBoard board, int depth) {
 		Move initalMove = new Move(-1, -1);
+		Integer value = null;
 		
-		System.out.println("Starting AlphaBeta - Max: " + Max + "; Min: " + Min);
+		System.out.println("Starting *AlphaBeta* decision - Max: " + Max + "; Min: " + Min + "; Depth: " + depth + "; Ply: " + currentPly);
 		
-		int value = maxAlphaBetaValue(board, initalMove, player, depth, alphaNuclearOption, betaNuclearOption, true);
-		
-//		System.out.println("Ending AlphaBeta value: " + value + " Max moves size: " + this.maxMoves.size());
-		
-		// TODO napraviti metodu u zajednickoj Algorithm klasi za izvalcenje najboljeg poteza preko ditribucije
-        /*List<Move> distr = new ArrayList<Move>();
-        
-        for(int i = 0; i < this.maxMoves.size(); i++) {
-        	System.out.println("ALPHA BETA - max move " + i + " [" + this.maxMoves.get(i).getRow() + "][" + this.maxMoves.get(i).getColumn() +"]");
-        	for(int j = 0; j < probabilityDistribution.get(this.maxMoves.get(i).getColumn()); j++) {
-        		distr.add(this.maxMoves.get(i));
-        	}
+		/**
+		 * Prva dva poteza je tesko evaluirati algoritmom zato se na osnovu prethdnog iskustva uzimaju predoredjeni potezi.
+		 * 
+		 */
+		if(this.currentPly < 3) {
+			return Heuristics.evaluatedStartingMoveConnectFour(board, Max, currentPly);
+		} else {
+			value = maxAlphaBetaValue(board, initalMove, this.Max, depth, alphaNuclearOption, betaNuclearOption, true);
 		}
-        
-        Move bestMoveFromMax = distr.get(randInt(0, distr.size()));
+		
+		if(this.currentPly < 7 && this.isUnevaluatedMove) {
+			System.out.println("ALPHA BETA - mid-game zero score getting random move based on distribution...");
+			this.isUnevaluatedMove = false;
+			this.bestMove = Heuristics.evaluatedMidStartMoveConnectFour(board, Max, currentPly);
+			System.out.println("Best move [" + this.bestMove.getRow() + "][" + this.bestMove.getColumn() +"]");
+			
+			return this.bestMove;
+		}
+		
+		/*System.out.println("Ending AlphaBeta value: " + value + " Max moves size: " + this.maxMoves.size());
+		        
+        Move bestMoveFromMax = Utility.randomlyDistributedMove(maxMoves, probabilityDistribution);
         
         System.out.println("ALPHA BETA - Best move [" + bestMoveFromMax.getRow() + "][" + bestMoveFromMax.getColumn() +"]");
         
@@ -69,6 +85,8 @@ public class AlphaBetaPruning extends Algorithm{
 	
 	private int maxAlphaBetaValue(GameBoard board, Move previousMove, Player previousPlayer, int depth, double alpha, double beta, boolean isRootCall) {
         Integer terminalState = !isRootCall ? board.checkTerminalState(previousMove, previousPlayer, this.Max) : null;
+        boolean check4Terminal = board.checkGameEnd(previousMove, previousPlayer);
+        System.out.println("MAX terminal state : " + terminalState + "| check4Terminal : " + check4Terminal);
         int lowerDepth = depth - 1;
         
         if(terminalState != null) {
@@ -101,37 +119,51 @@ public class AlphaBetaPruning extends Algorithm{
             // Ako je ovo zadovoljeno onda to ne odgovara MINu i dalje vrijednosti score-a nece ni gledati
             // Posto je score uvijek Math.max, moze samo gore biti po beti
             if(score >= beta)
-                return (int) score;
+                return Utility.roundDouble(score);
 
             //Prune branch if true
             //if(alpha >= beta)
             //    return alpha;
 
+//            if(isRootCall) {
+//            	System.out.println("- ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]");
+//            }
+            
 //            if(score >= alpha) {
         	if(score > alpha) {
                 if(isRootCall) {
-                	System.out.println("ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]");
-                	/*if(score == alpha) {
+                	if((int) score == 0 && alpha == Double.NEGATIVE_INFINITY) {
+                		this.isUnevaluatedMove = true;
+                	} else if(this.isUnevaluatedMove) {
+                		this.isUnevaluatedMove = false;
+                	}
+                	
+                	System.out.println("+ ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]" + " - isUnevaluatedMove: " + this.isUnevaluatedMove);
+                	/*if(score == alpha && this.currentPly < 4) {
+                		System.out.println("0 ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]");
                 		this.maxMoves.add(new Move(currentState.getRow(), currentState.getColumn()));
                 	} else if(score > alpha){
                 		this.maxMoves.clear();
                 		this.maxMoves.add(new Move(currentState.getRow(), currentState.getColumn()));
                 	}*/
-                	
-                	// uzima zadnji najbolji potez
+
+                	 // uzima prvi najbolji potez
                     this.bestMove = new Move(currentState.getRow(), currentState.getColumn());
                 }
-
+                
                 alpha = score;
             }
         }
 
-        return (int) score;
+        return Utility.roundDouble(score);
         //return alpha;
     };
     
     private int minAlphaBetaValue(GameBoard board, Move previousMove, Player previousPlayer, int depth, double alpha, double beta) {
         Integer terminalState = board.checkTerminalState(previousMove, previousPlayer, this.Max);
+        boolean check4Terminal = board.checkGameEnd(previousMove, previousPlayer);
+        System.out.println("MIN terminal state : " + terminalState + "| check4Terminal : " + check4Terminal);
+        
         int lowerDepth = depth - 1;
 
         if(terminalState != null) {
@@ -163,27 +195,11 @@ public class AlphaBetaPruning extends Algorithm{
             // Ako je ovo zadovoljeno onda to ne odgovara MAXu i dalje vrijednosti score-a nece ni gledati
             // Posto je score minimum, moze samo gore biti po alfi
             if(score <= alpha)
-                return (int) score;
+                return Utility.roundDouble(score);
 
             beta = Math.min(beta, score);
         }
 
-        return (int) score;
+        return Utility.roundDouble(score);
     };
-	
-	public Player getReversePlayer(Player player) {
-        if(player.equals(Player.RED)) {
-            return Player.YELLOW;
-        } else {
-            return Player.RED;
-        }
-    }
-	
-	public static int randInt(int min, int max) {
-        Random randGenerator = new Random();
-
-        int randNumber = randGenerator.nextInt((max - min)) + min;
-
-        return randNumber;
-    }
 }

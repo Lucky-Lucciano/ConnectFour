@@ -24,7 +24,7 @@ public class Request extends HttpServlet {
 	
 	// Depth == 4 - 50% win rate for me
 	// Depth == 5 - 1% win rate for me
-	private static final int DEPTH = 6;
+	private static final int DEPTH = 8;
     
 	public Game game;
 
@@ -74,8 +74,9 @@ public class Request extends HttpServlet {
 				// Create a new game
 				JsonObject gameData = requestObj.get("data").getAsJsonObject();
 				System.out.println("Creating game: " + requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt() + " yel type :" +  gameData.get("yellow").getAsInt());
-				game = new Game(6, 7, gameData.get("startingPlayer").getAsInt(), gameData.get("yellow").getAsInt(),
-									gameData.get("red").getAsInt(), gameData.get("autoPlay").getAsBoolean(), DEPTH);
+				game = new Game(gameData.get("rows").getAsInt(), gameData.get("columns").getAsInt(), gameData.get("startingPlayer").getAsInt(),
+						gameData.get("yellow").getAsInt(), gameData.get("red").getAsInt(), gameData.get("autoPlay").getAsBoolean(),
+						gameData.get("yellowDepth").getAsInt(), gameData.get("redDepth").getAsInt());
 				break;
 			case 1:
 				//Handle move for current game

@@ -23,21 +23,20 @@ public class Minimax extends Algorithm{
 	
 	List<Integer> probabilityDistribution = Arrays.asList(1, 2, 3, 4, 3, 2, 1);
 	
-	public Minimax(int type) {
+	public Minimax(Player maxPlayer, int type) {
+		Max = maxPlayer;
+		Min = getReversePlayer(maxPlayer);
 		evalType = type;
 	}
 	
 	@Override
-	public Move getIdealMove(GameBoard board, Player player, int depth) {
-		System.out.println("START Minimax for " + player + "; algo type: [" + this.evalType + "]");
-		return minimaxDecision(board, player, depth);
+	public Move getIdealMove(GameBoard board, int depth, int ply) {
+//		System.out.println("START Minimax for " + player + "; algo type: [" + this.evalType + "]");
+		return minimaxDecision(board, depth);
 	}
 	
-	public Move minimaxDecision(GameBoard board, Player player, int depth) {
-		Max = player;
-		Min = getReversePlayer(player);
-		
-		System.out.println("Starting MINIMAX - Max: " + Max + "; Min: " + Min);
+	public Move minimaxDecision(GameBoard board, int depth) {
+		System.out.println("Starting *AlphaBeta* decision - Max: " + Max + "; Min: " + Min + "; Depth: " + depth);
 		List<Move> possibleStateActions = board.stateActions();
 		Move currentAction;
 		Map<Integer, Integer> actionUtilities = new HashMap<Integer, Integer>();
@@ -64,7 +63,7 @@ public class Minimax extends Algorithm{
                 maxKey = i;
         	}
 		}
-        System.out.println("-------------------------------------------------");
+        System.out.println("---------------------");
         /**
          * Ukoliko ima nekoliko istih rezulata Minimax-a da se izabere random neki od njih ali sa odredjenim vjerovatnocama po 'dobroti'
          */
