@@ -20,7 +20,7 @@ function log(value) {
 var YELLOW = 0,
     RED = 1;
 
-var vsAI = true,
+var gameActive = false,
 	firstRun = true,
 	yellowPlayerType,
 	redPlayerType,
@@ -42,6 +42,8 @@ function startNewGame() {
 	toggleStartInstructions(false);
 	
 	function newGameResponse() {
+		gameActive = true;
+		
 		/**
 		 * Ako nije human player da onda samostalno odigra potez
 		 */
@@ -82,8 +84,7 @@ function startNewGame() {
 		scoreboardDraw.innerHTML = 0;
 	} else {
 		ConnectFour.init();
-	}
-		
+	}	
 }
 
 function createAjaxRequest(method, URL, callback, data) {
@@ -97,7 +98,7 @@ function createAjaxRequest(method, URL, callback, data) {
 
 	httpRequest.open(method, URL, true);
 	httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	httpRequest.send(data ? "data=" + data + "&test=FCb" : null);
+	httpRequest.send(data ? "data=" + data : null);
 }
 
 var ConnectFour = (function(){
@@ -111,7 +112,7 @@ var ConnectFour = (function(){
 	var vsAI = true,
 		current;
 	
-	var init = function() {		
+	var init = function() {
 		turn = 0;
 		board = [];
 		
@@ -145,31 +146,35 @@ var ConnectFour = (function(){
 	                    this.gravity("stopper");
 	                    this.unbind("mousedown");
 	                    
-	                    setTimeout(function() {
-	                    	reset(column);
-	                    }, 1000)
+	                    if(gameActive) {
+	                    	setTimeout(function() {
+		                    	handleTurn(column);
+		                    }, 1000)
+	                    } else {
+	                    	handleTurn(column);
+	                    }
 	                });
 	            }
 	        });
 
-	        function reset(column) {
+	        function handleTurn(column) {
 	            var row = findEmptyRow(column);
 	            if(row !== COLUMN_FULL && column >= 0 && column < 7) {
 	            	board[column][row] = turn;
 	                
-	                console.log("TURN made: " + turn + ";" + (turn ? "red" : "yellow"));
+	                console.log("TURN made by " +(turn ? "red" : "yellow") + "; game active: " + gameActive);
 	                
-	                if(checkFour(column,row)) {
+	                /*if(checkFour(column,row)) {
 	                    win(turn);
 	                    return;
+	                }*/
+	                if(gameActive) {
+	                	if(turn == 0 &&  redPlayerType != 0) {
+		                	makeAIMove(column, row, turn);
+		                } else if(turn == 1 && yellowPlayerType != 0) {
+		                	makeAIMove(column, row, turn);
+		                }
 	                }
-	                
-//	                if(turn == 0) {
-	                // TODO provjera je li human
-	                	makeAIMove(column, row, turn);
-//	                } else if(turn == 1) {
-//	                	makeAIMove(column, row, turn);
-//	                }
 
 	                turn ^= 1; //alternate turns
 	                current = Crafty.e("2D, Canvas, piece, stopper," + (turn ? "red" : "yellow")).attr({x: 495, y: 420});
@@ -302,27 +307,41 @@ var ConnectFour = (function(){
         return counter>=4;
     }
     
+    function placeCoin(column) {
+    	current.startDrag();
+    	current.attr({x: 64 * column, y: 0});
+    	current.stopDrag();
+    }
+    
     function moveAI(result) {
     	var response = JSON.parse(result),
     		column = response.column,
     		gameResult = response.gameResult;
     	
     	if(gameResult != -1) {
+    		//placeCoin(column);
+    		gameActive = false;
+    		placeCoin(column);
+    		
     		if(gameResult == 0){
     			scoreboardYellow.innerHTML = parseInt(scoreboardYellow.innerHTML) + 1;
+    			if(!autoPlay)
+    				win(gameResult);
     		} else if(gameResult == 1) {
     			scoreboardRed.innerHTML = parseInt(scoreboardRed.innerHTML) + 1;
+    			if(!autoPlay)
+    				win(gameResult);
     		} else if(gameResult = 2) {
     			scoreboardDraw.innerHTML = parseInt(scoreboardDraw.innerHTML) + 1;
+    			if(!autoPlay)
+    				alert("Draw!");
     		}
     		
     		if(autoPlay) {
     			startNewGame();
     		}
     	} else {
-    		current.startDrag();
-        	current.attr({x: 64 * column, y: 0});
-        	current.stopDrag();
+    		placeCoin(column);
     	}
     }
 

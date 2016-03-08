@@ -73,7 +73,7 @@ public class Request extends HttpServlet {
 			case 0:
 				// Create a new game
 				JsonObject gameData = requestObj.get("data").getAsJsonObject();
-				System.out.println("Creating game: " + requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt() + " yel type :" +  gameData.get("yellow").getAsInt());
+				//System.out.println("Creating game: " + requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt() + " yel type :" +  gameData.get("yellow").getAsInt());
 				game = new Game(gameData.get("rows").getAsInt(), gameData.get("columns").getAsInt(), gameData.get("startingPlayer").getAsInt(),
 						gameData.get("yellow").getAsInt(), gameData.get("red").getAsInt(), gameData.get("autoPlay").getAsBoolean(),
 						gameData.get("yellowDepth").getAsInt(), gameData.get("redDepth").getAsInt());
@@ -90,8 +90,4 @@ public class Request extends HttpServlet {
 		pw.close();
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
-	
-	/*public static void main(String[] args) {
-		
-	}*/
 }

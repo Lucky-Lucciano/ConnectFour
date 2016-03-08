@@ -8,9 +8,12 @@ import java.util.List;
 import net.etfbl.connectfour.Game.Player;
 
 public class GameBoard {
+	private static final int MAX_WIN_MULTIPLIER = 6;
+	private static final int MIN_WIN_MULTIPLIER = 7;
 	private static final int COLUMN_FULL = -2;
-	private static final int YELLOW = 0;
-	private static final int RED = 1;
+	
+	public static final int YELLOW = 0;
+	public static final int RED = 1;
 	public static final int EMPTY = -1;
 	public static final int MAX_WON = 1;
 	public static final int MIN_WON = -1;
@@ -36,21 +39,13 @@ public class GameBoard {
 	public GameBoard(Integer board[][]) {
 		this.nRows = board.length;
 		this.nCols = board[this.nRows -1].length;
-//		//
-//		System.out.println("AROOOOWW: " + this.nRows + " - " + board.length + "; this.nCols " + this.nCols);
-//		System.out.println(Arrays.deepToString(board));
 		this.board = new Integer[nRows][nCols];
-//		this.board = board.clone();
-//		try{
 		for(int i = 0; i < this.nRows; i++) {
 			for(int j = 0; j < this.nCols; j++) {
 //				System.out.println("i: " + i + " - j: " + j + "; " + board[i][j]);
 			    this.board[i][j] = board[i][j];
 			}
 		}
-//		}catch(NullPointerException ex) {
-//			System.out.println(ex.getMessage());
-//		}
 	} 
 	
 	public Integer getPiece(int row, int col) {
@@ -66,14 +61,7 @@ public class GameBoard {
         }
         
 		//System.out.println(Arrays.deepToString(this.board));
-		
 		//System.out.println(Arrays.toString(this.board[0]));
-		//System.out.println(Arrays.toString(this.board[1]));
-		
-		//System.out.println(freeColumns.toString());
-        
-//        System.out.println(this);
-        
         return freeColumns;
     }
 	
@@ -82,16 +70,12 @@ public class GameBoard {
     }
 	
 	public int findEmptyRow(int column) {
-        //if(!board[column]) return;
         for(int i = 0; i < nRows; i++) {
             if(board[i][column] == EMPTY)
                 return i;
         }
         
         return COLUMN_FULL;
-        
-        // TODO use this mechanics instead?
-        //return COLUMN_FULL;
     }
 	
 	public void setPiece(int column, Player player) {
@@ -110,34 +94,42 @@ public class GameBoard {
 //		System.out.println("TERM check: " + previousMove.getRow());
 		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
 		
+		// OBSOLETE: jednostavni nacin provjere connect 4 koji je dosta sporiji od trenutnog
+		//if(checkFourSimple(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
-//			 System.out.println("TERM prev - " + previousPlayer + " value " + (previousPlayer == Player.RED ? RED_WON : YELLOW_WON));
-			return 4 * (previousPlayer == playerMax ? MAX_WON : MIN_WON);
+			int score;
+			if(previousPlayer == playerMax) {
+				score = MAX_WIN_MULTIPLIER * MAX_WON;
+			} else {
+				/**
+				 * Da bude veca kazna od pobjede
+				 */
+				score = MIN_WIN_MULTIPLIER * MIN_WON;
+			}
+			
+			return score;
 		} else if(checkDraw(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
-			System.out.println("DRAAAAAAAAAAAAAAAAAAAAAAWWWWWWWWWWWWWWWWWWWWWW " + DRAW);
 			return DRAW;
 		}
 		
 		return null;
 	}
 	
-	public boolean checkGameEnd(Move previousMove, Player previousPlayer){
+	public boolean checkFour(int row, int column, int currentPlayerVal){
 		boolean fourConnected = false;
-		int x = previousMove.getRow();
-		int y = previousMove.getColumn();
+
 //		if(this.board[x][y] != 0) {
-			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, 0);
-			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, -1);
-			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 0, 1);
-			fourConnected = (fourConnected) ? fourConnected : this.check4(previousPlayer, x, y, 1, 1);
+			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 1, 0);
+			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 1, -1);
+			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 0, 1);
+			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 1, 1);
 //		}
 		return fourConnected;
 	}
 	
-	public boolean check4(Player previousPlayer, int x, int y, int dx, int dy) {
+	public boolean checkFourConnection(int currentPlayerVal, int x, int y, int dx, int dy) {
 		int length = 1;
 		int i = 1;
-		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
 		
 		while(this.isValidMove(x + dx*i, y + dy*i)) {
 			if(this.board[x + dx*i][y + dy*i] == currentPlayerVal) {
@@ -148,6 +140,7 @@ public class GameBoard {
 				break;
 			}
 		}
+		
 		i = -1;
 		while(this.isValidMove(x+ dx*i,y+ dy*i)) {
 			if(this.board[x+ dx*i][y+ dy*i] == currentPlayerVal) {
@@ -231,7 +224,36 @@ public class GameBoard {
         return true;
     }
 	
-	public boolean checkFour(int row, int column, int player) {
+	//returns true if the chip is on the board
+	public boolean isValidMove(int row, int column) {
+		return (0 <= row && row < this.nRows && 0 <= column && column < this.nCols);
+	}
+	
+	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
+//			System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());
+		gameBoard.setPiece(moveToMake.getRow(), moveToMake.getColumn(), player);
+		return gameBoard;
+	}
+	
+	public List<Move> stateActions() {
+		List<Move> actions = new ArrayList<Move>();
+		List<Integer> freeColumns = getFreeColumns();
+		int currentRow;
+		
+		for(Integer currentCol: freeColumns) {
+			currentRow = findEmptyRow(currentCol);
+			
+			if(currentRow != COLUMN_FULL) {
+				actions.add(new Move(currentRow, currentCol));
+			} else {
+				System.out.println("COLUMN FULL: " + currentCol);
+			}
+		}
+		
+		return actions;
+	}
+	
+	public boolean checkFourSimple(int row, int column, int player) {
         if(checkVertical(row, column, player))
         	return true;
         if(checkHorizontal(row, column, player))
@@ -361,35 +383,6 @@ public class GameBoard {
         }
         return counter >= 4;
     }
-	
-	//returns true if the chip is on the board
-	public boolean isValidMove(int row, int column) {
-		return (0 <= row && row < this.nRows && 0 <= column && column < this.nCols);
-	}
-	
-	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
-//		System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());
-		gameBoard.setPiece(moveToMake.getRow(), moveToMake.getColumn(), player);
-		return gameBoard;
-	}
-	
-	public List<Move> stateActions() {
-		List<Move> actions = new ArrayList<Move>();
-		List<Integer> freeColumns = getFreeColumns();
-		int currentRow;
-		
-		for(Integer currentCol: freeColumns) {
-			currentRow = findEmptyRow(currentCol);
-			
-			if(currentRow != COLUMN_FULL) {
-				actions.add(new Move(currentRow, currentCol));
-			} else {
-				System.out.println("COLUMN FULL: " + currentCol);
-			}
-		}
-		
-		return actions;
-	}
 	
 	@Override
 	public String toString() {

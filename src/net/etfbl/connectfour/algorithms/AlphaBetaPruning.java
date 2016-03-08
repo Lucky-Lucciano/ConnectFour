@@ -35,8 +35,6 @@ public class AlphaBetaPruning extends Algorithm{
 	@Override
 	public Move getIdealMove(GameBoard board, int depth, int ply) {
 //		System.out.println("START AlphaBeta for " + player + "; algo type: [" + this.evalType + "]");
-//		this.Max = player;
-//		this.Min = getReversePlayer(player);
 		this.bestMove = null;
 		this.maxMoves.clear();
 		this.currentPly = ply;
@@ -52,7 +50,7 @@ public class AlphaBetaPruning extends Algorithm{
 		System.out.println("Starting *AlphaBeta* decision - Max: " + Max + "; Min: " + Min + "; Depth: " + depth + "; Ply: " + currentPly);
 		
 		/**
-		 * Prva dva poteza je tesko evaluirati algoritmom zato se na osnovu prethdnog iskustva uzimaju predoredjeni potezi.
+		 * Prva dva poteza je tesko evaluirati(ocjeniti) algoritmom zato se na osnovu prethdnog iskustva uzimaju predoredjeni potezi.
 		 * 
 		 */
 		if(this.currentPly < 3) {
@@ -61,8 +59,8 @@ public class AlphaBetaPruning extends Algorithm{
 			value = maxAlphaBetaValue(board, initalMove, this.Max, depth, alphaNuclearOption, betaNuclearOption, true);
 		}
 		
-		if(this.currentPly < 7 && this.isUnevaluatedMove) {
-			System.out.println("ALPHA BETA - mid-game zero score getting random move based on distribution...");
+		if(this.currentPly < 8 && this.isUnevaluatedMove) {
+			System.out.println("ALPHA BETA - mid-game zero score getting random distribution based move...");
 			this.isUnevaluatedMove = false;
 			this.bestMove = Heuristics.evaluatedMidStartMoveConnectFour(board, Max, currentPly);
 			System.out.println("Best move [" + this.bestMove.getRow() + "][" + this.bestMove.getColumn() +"]");
@@ -85,21 +83,21 @@ public class AlphaBetaPruning extends Algorithm{
 	
 	private int maxAlphaBetaValue(GameBoard board, Move previousMove, Player previousPlayer, int depth, double alpha, double beta, boolean isRootCall) {
         Integer terminalState = !isRootCall ? board.checkTerminalState(previousMove, previousPlayer, this.Max) : null;
-        boolean check4Terminal = board.checkGameEnd(previousMove, previousPlayer);
-        System.out.println("MAX terminal state : " + terminalState + "| check4Terminal : " + check4Terminal);
+
         int lowerDepth = depth - 1;
         
         if(terminalState != null) {
         	return terminalState * depth;
         } else if(lowerDepth <= 0) {
-            int eval;
+            int eval = 0;
             if(evalType == 1) {
-//        		System.out.println("MAX Using improved for player : " + Max);
-        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, true);
 //        		eval = (int) Math.round(Heuristics.stateEvaluationConnectFourGaussian(new GameBoard(board.getBoard()), previousPlayer) / 10);
-        	} else {
-//        		System.out.println("MAX Using BAAADD for player : " + Max);
+        	} else if(evalType == 2)  {
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	} else if(evalType == 3) {
+
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, false);
         	}
             
             return eval;
@@ -138,7 +136,7 @@ public class AlphaBetaPruning extends Algorithm{
                 		this.isUnevaluatedMove = false;
                 	}
                 	
-                	System.out.println("+ ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]" + " - isUnevaluatedMove: " + this.isUnevaluatedMove);
+                	System.out.println("+ ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]" + " - unevaluated: " + this.isUnevaluatedMove);
                 	/*if(score == alpha && this.currentPly < 4) {
                 		System.out.println("0 ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]");
                 		this.maxMoves.add(new Move(currentState.getRow(), currentState.getColumn()));
@@ -147,7 +145,7 @@ public class AlphaBetaPruning extends Algorithm{
                 		this.maxMoves.add(new Move(currentState.getRow(), currentState.getColumn()));
                 	}*/
 
-                	 // uzima prvi najbolji potez
+                	// uzima prvi najbolji potez
                     this.bestMove = new Move(currentState.getRow(), currentState.getColumn());
                 }
                 
@@ -161,22 +159,20 @@ public class AlphaBetaPruning extends Algorithm{
     
     private int minAlphaBetaValue(GameBoard board, Move previousMove, Player previousPlayer, int depth, double alpha, double beta) {
         Integer terminalState = board.checkTerminalState(previousMove, previousPlayer, this.Max);
-        boolean check4Terminal = board.checkGameEnd(previousMove, previousPlayer);
-        System.out.println("MIN terminal state : " + terminalState + "| check4Terminal : " + check4Terminal);
         
         int lowerDepth = depth - 1;
 
         if(terminalState != null) {
         	return terminalState * depth;
         } else if(lowerDepth <= 0) {
-            int eval;
+            int eval = 0;
             if(evalType == 1) {
-//        		System.out.println("MAX Using improved for player : " + Max);
-        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer);
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, true);
 //        		eval = (int) Math.round(Heuristics.stateEvaluationConnectFourGaussian(new GameBoard(board.getBoard()), previousPlayer) / 10);
-        	} else {
-//        		System.out.println("MAX Using BAAADD for player : " + Max);
+        	} else if(evalType == 2){
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
+        	} else if(evalType == 3){
+        		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, false);
         	}
             
             return eval;

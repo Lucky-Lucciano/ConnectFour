@@ -3,139 +3,7 @@
   	<title>ETF Connect Four</title>
   	
   	<script type="text/javascript" src="resources/scripts/lib/crafty.js"></script>
-    
-    <style type="text/css">
-	    body {
-		    background-color: #f5f8fa;
-		}
-		
-    	@font-face {
-	    	font-family: DKDirty;
-	    	/*src: url(/resources/css/fonts/DK Dirrrty.ttf);*/
-	    	src: url(resources/css/fonts/SCOREBOARD.ttf);
-    	}
-    	
-    	.score {
-    		font-family: DKDirty;
-    		font-size: 80px;
-    	}
-    	
-    	#scoreboard {
-/*     		background-color: rgba(41,47,51,0.9);; */
-    	}
-    	
-		.black_overlay{
-/* 			display: none; */
-			position: absolute;
-			top: 0%;
-			left: 0%;
-			width: 100%;
-			height: 100%;
-			background: rgba(41,47,51,0.9);
-			z-index: 1001;
-		}
-	
-		.white_content {
-			display: none;
-			position: absolute;
-			top: 25%;
-			left: 25%;
-			width: 50%;
-			height: 50%;
-			padding: 16px;
-			border: 16px solid orange;
-			background-color: white;
-			z-index:1002;
-			overflow: auto;
-		}
-		
-		.btn {
-			font-weight: bold;
-		    line-height: normal;
-		    padding: 8px 16px;
-		    border-radius: 4px;
-		    color: #66757f;
-		    cursor: pointer;
-		}
-		
-		.btn-new-game {    
-			right: 141px;
-    		position: absolute;
-    		
-			font-size: 16px;
-			color: #fff;
-	    	background-color: #1da1f2;
-	    	border: 1px solid #3b88c3;
-    		box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
-		}
-		
-		.modal {
-		    top: 170px;
-		    left: 150px;
-		    position: absolute;
-		    
-		    width: 300px;
-   			margin: 0;
-   			z-index: 6000;
-		}
-		
-		.modal-content {
-		    position: relative;
-		    background-color: #fff;
-		    border: 1px solid #292f33 \9;
-		    border-radius: 6px;
-		    background-clip: padding-box;
-		    box-shadow: 0 4px 15px rgba(32,47,51,.20);
-		}
-		
-		.modal-body {
-		    padding: 30px;
-		    text-align: center!important;
-		}
-		
-		.dialog-heading {
-		    color: #66757f;
-		    font-size: 22px;
-		    font-weight: 300;
-		    line-height: 26px;
-		    margin: 20px 0;
-		}
-		
-		#game {
-    		margin: 0 auto;
-    		display: inline-block;
-    	}
-		
-		#gameSettings {
-			margin-bottom: 5px;
-			margin-top: 10px;
-/* 			border: 1px black dashed; */
-			padding: 8px;
-			width: 450px;
-		}
-		
-		#gameSettings div{
-			margin-bottom: 7px;
-		}
-		
-		#settingsWrapper {
-			width: 500px;
-			float: left;
-			margin-right: 30px;
-		}
-		
-		.depth {
-			margin-left: 5px;
-		}
-		
-		.cuttoff {
-			width: 60px;
-		}
-		
-		.abstand {
-			margin-left: 21px;
-		}
-    </style>
+    <link href="resources/css/style.css" rel="stylesheet">
   </head>
   <body>
 	<div id="game">
@@ -158,11 +26,12 @@
 		    <div>
 			    <span>Yellow Player:</span>
 				<select id="yellowMenu">
-					<option>Human</option>
+					<option selected="selected">Human</option>
 					<option>Minimax Improved</option>
 					<option>Minimax Simple</option>
-					<option selected="selected" >Alphabeta Improved</option>
+					<option>Alphabeta Improved</option>
 					<option>Alphabeta Simple</option>
+					<option>Alphabeta Non-forking</option>
 				</select>
 				<span>Depth:</span>
 				<input type="number" id="cutoffYellow" class="cuttoff" min="1" value="8"/>
@@ -173,8 +42,9 @@
 					<option>Human</option>
 					<option>Minimax Improved</option>
 					<option>Minimax Simple</option>
-					<option>Alphabeta Improved</option>
-					<option selected="selected">Alphabeta Simple</option>
+					<option selected="selected">Alphabeta Improved</option>
+					<option>Alphabeta Simple</option>
+					<option>Alphabeta Non-forking</option>
 				</select>
 				<span>Depth:</span>
 				<input type="number" id="cutoffRed" class="cuttoff" min="1" value="8"/>
@@ -185,23 +55,18 @@
 			</div>
 			
 			<a onclick="startNewGame();" role="button" class="btn btn-new-game" >Start Game</a>
-	<!-- 		<br> -->
-	<!-- 		<input value="Reset" onclick="startNewGame();" type="button"> -->
-	<!-- 		<input value="Step" id="stepButton" onclick="" type="button"> -->
 		</div>
 	
 	    
 	    <div id="scoreboard">
-<!-- 	    	<div style="margin-bottom: 7px"> Yellow score: <span id="yellowScore" class="score" style="color: yellow">0</span> </div> -->
-<!-- 	    	<div class="abstand"> Red score: <span id="redScore" class="score" style="color: red">0</span></div> -->
-<!-- 	    	<div class="abstand"> Draw: <span id="drawScore" class="score">0</span> </div> -->
+	    	<div> Score: </div>
 			<span id="yellowScore" class="score" style="color: yellow">0</span> 
 	    	<span id="redScore" class="score" style="color: red">0</span>
 	    	<span id="drawScore" class="score">0</span>
 	    	
-	    	<div id="currentTurn" >
-		        Turn: <span id="currentPlayerTurn"> Red </span>
-		    </div>
+<!-- 	    	<div id="currentTurn" > -->
+<!-- 		        Turn: <span id="currentPlayerTurn"> Red </span> -->
+<!-- 		    </div> -->
 	    </div>
     </div>
     

@@ -12,7 +12,7 @@ public class Utility {
 		List<Move> distributedList = new ArrayList<Move>();
         
         for(int i = 0; i < moves.size(); i++) {
-        	System.out.println("ALGORITHM - max move " + i + " [" + moves.get(i).getRow() + "][" + moves.get(i).getColumn() +"]");
+//        	System.out.println("ALGORITHM - max move " + i + " [" + moves.get(i).getRow() + "][" + moves.get(i).getColumn() +"]");
         	for(int j = 0; j < probabilityDistribution.get(moves.get(i).getColumn()); j++) {
         		distributedList.add(moves.get(i));
         	}
@@ -42,4 +42,12 @@ public class Utility {
 	public static int roundDouble(double doubleVar) {
 		return (int) Math.round(doubleVar);
 	}
+	
+	/*public static int updateScore(Player player, int currentScore) {
+		if(player == Player.RED) {
+			currentScore += WIN_INCREMENT;	
+		} else {
+			currentScore -= LOSE_INCREMENT;	
+		}
+	}*/
 }

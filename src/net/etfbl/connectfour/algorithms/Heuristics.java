@@ -10,6 +10,10 @@ import net.etfbl.connectfour.Move;
 import net.etfbl.connectfour.Utility;
 
 public class Heuristics {
+	private static final int WIN_INCREMENT = 3;
+//	private static final int LOSE_INCREMENT = 2;
+	private static final int FORK_INCREMENT = 1;
+	
 	public static final int[][] evaluationTableConnectFour = {{3, 4, 5, 7, 5, 4, 3}, 
 													          {4, 6, 8, 10, 8, 6, 4},
 													          {5, 8, 11, 13, 11, 8, 5}, 
@@ -128,7 +132,7 @@ public class Heuristics {
 		//return 0;
 	}
 	
-	public static int stateEvaluationConnectFourImproved(GameBoard board, Player player) {
+	public static int stateEvaluationConnectFourImproved(GameBoard board, Player player, boolean includeForkValue) {
 		GameBoard currentPosition = new GameBoard(board.getBoard());
 		
 		//finds next valid move in all columns
@@ -136,18 +140,21 @@ public class Heuristics {
 		for (int x = 0; x < board.getnCols(); x++){
 			nextFreeRowPosition[x] = board.findEmptyRow(x);
 		}
-		
-//		System.out.println("----------------------------------------");
+
 //		System.out.println("Starting board: \n" + board);
 		
 		int winningMoves = 0;
 		int winningMovesRed = 0;
 		int winningMovesYellow = 0;
+		int lowestPosition;
 		// Go trough all columns
 		for (int x = 0; x < board.getnCols(); x++){			
 			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
-			// nefikasno sada
+			//      nije efikasno sada? ili je ipak ok....
+			lowestPosition = 0;
+			
 			for (int y = nextFreeRowPosition[x]; y < board.getnRows(); y++){
+				lowestPosition++;
 				/**
 				 * Check if currently selected cell is empty
 				 * Mora biti provjera Y jer ako je red pun vraca -2
@@ -156,24 +163,31 @@ public class Heuristics {
 					/**
 					 * Simulate RED's next move and check if he has won
 					 */
+					// TODO dodati umjesto 1 RED value
 					currentPosition.getBoard()[y][x] = 1;
 					if(currentPosition.checkFour(y, x, 1)){
 //						System.out.println("Red wining move [" + y + "] - [" + x + "]");
 						winningMovesRed++;
 						if(player == Player.RED) {
-							winningMoves++;	
+							winningMoves += WIN_INCREMENT;
 						} else {
-							winningMoves--;
+							winningMoves -= WIN_INCREMENT;
 						}
-					} else if(currentPosition.tripleFork(new Move(y, x), Player.RED)) {
-						System.out.println("FOOOOOOOORKEEEEEDD");
-						
-						System.out.println("End state : \n" + currentPosition);
-						/*if(player == Player.RED) {
-							winningMoves++;	
+					
+					/**
+					 * FORKING - ukoliko u trenutnom stanju board-a nema 4 u nizu, onda gledamo da li je moguca FORK situacija.
+					 * Fork je stanje na boardu gdje su 3 plocice u nizu a na njihove krajeve je potencijalno moguce dodati jos jednu plocicu i tako obrazovati 4 u nizu 
+					 * i tako protinvika "drzati u saci" jer moze jedan kraj sprijeciti 
+					 */
+					} else if(includeForkValue && lowestPosition == 1 && currentPosition.tripleFork(new Move(y, x), Player.RED)) {
+//						System.out.println("====" + (lowestPosition == 1? "CUTOFFF": "") + "====== FORK ===========" + "x = " + x + " y= " + y + "=====" + Arrays.toString(nextFreeRowPosition) + "=====");
+//						
+//						System.out.println("End state : \n" + currentPosition);
+						if(player == Player.RED) {
+							winningMoves += FORK_INCREMENT;
 						} else {
-							winningMoves--;
-						}*/
+							winningMoves -= FORK_INCREMENT;
+						}
 					}
 					
 					/**
@@ -183,11 +197,17 @@ public class Heuristics {
 					if(currentPosition.checkFour(y, x, 0)){
 						winningMovesYellow++;
 						if(player == Player.RED) {
-							winningMoves--;	
+							winningMoves -= WIN_INCREMENT;
 						} else {
-							winningMoves++;
+							winningMoves += WIN_INCREMENT;
 						}
-					} 
+					} else if(includeForkValue && lowestPosition == 1 && currentPosition.tripleFork(new Move(y, x), Player.YELLOW)) {
+						if(player == Player.RED) {
+							winningMoves -= FORK_INCREMENT;
+						} else {
+							winningMoves += FORK_INCREMENT;
+						}
+					}
 					
 					/**
 					 * Reset the simulated move
@@ -233,46 +253,13 @@ public class Heuristics {
         return utility + sum;
 	}
 	
+	// TODO Eval function na osnovu najduzih povezanih tokena 
 	public static int stateEvaluationConnectFourLongestChain(GameBoard board, Player player) {
 		GameBoard currentPosition = new GameBoard(board.getBoard());
-		/*int score = board.longest_chain(board.get_current_player_id()) * 10
-		for(int i = 0; i < board.getnRows(); i++) {			
-			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
-			// nefikasno sada
-			for(int j = 0; j < board.getnCols(); j++){
-                if(board.get_cell(row, col) == board.get_current_player_id()) {
-                	score -= abs(3-col)
-                } else if(board.get_cell(row, col) == board.get_other_player_id()) {
-                    score += abs(3-col)
-                }
-
-			}
-		}
-			
-		return score;*/
+		
 		return 0;
 	}
-	
-	public static int stateEvaluationConnectFourFork(GameBoard board, Player player) {
-		GameBoard currentPosition = new GameBoard(board.getBoard());
-		/*int score = board.longest_chain(board.get_current_player_id()) * 10
-		for(int i = 0; i < board.getnRows(); i++) {			
-			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
-			// nefikasno sada
-			for(int j = 0; j < board.getnCols(); j++){
-                if(board.get_cell(row, col) == board.get_current_player_id()) {
-                	score -= abs(3-col)
-                } else if(board.get_cell(row, col) == board.get_other_player_id()) {
-                    score += abs(3-col)
-                }
-
-			}
-		}
-			
-		return score;*/
-		return 0;
-	}
-	
+		
 	public static Move evaluatedStartingMoveConnectFour(GameBoard board, Player player, int ply) {
 		List<Move> possibleStateActions = board.stateActions();
 		
@@ -292,7 +279,7 @@ public class Heuristics {
 				break;
 			case 2:
 				/**
-				 * Prvi potez, statisticki gledano, najbolje je odgirati u centralnoj koloni
+				 * Drugi potez, ukoliko je centralna kolona slobodna, povecaj mogucnosti njenog popunjavanja
 				 */
 				List<Integer> secondMoveDistribution;
 				if(nextFreeRowPosition[3] == GameBoard.EMPTY) {
@@ -340,21 +327,10 @@ public class Heuristics {
 														evaluationTableConnectFour[0][5],
 														evaluationTableConnectFour[0][6]
 													);
-//		if(nextFreeRowPosition[3] == GameBoard.EMPTY) {
-//			secondMoveDistribution = Arrays.asList(0, 1, 4, 9, 4, 1, 0);
-//		} else {
-//		secondMoveDistribution = Arrays.asList(3, 4, 5, 7, 5, 4, 3);
-//		}
+		//TODO Za poteze preko 7-8 plya uzeti mid-lower distribuciju umjesto ove najnize
 		
 		idealMove = Utility.randomlyDistributedMove(possibleStateActions, lowerRowStandardDistribution);
-
 		
 		return idealMove;
-	}
-	
-	public static void main(String[] args) {
-		Integer[] data = new Integer[7];
-		Arrays.fill(data, evaluationTableConnectFour[0]);
-		System.out.println(data);
 	}
 }
