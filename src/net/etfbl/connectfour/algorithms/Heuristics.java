@@ -282,10 +282,11 @@ public class Heuristics {
 				 * Drugi potez, ukoliko je centralna kolona slobodna, povecaj mogucnosti njenog popunjavanja
 				 */
 				List<Integer> secondMoveDistribution;
-				if(nextFreeRowPosition[3] == GameBoard.EMPTY) {
+				System.out.println("bbb " + nextFreeRowPosition[3]);
+				if(nextFreeRowPosition[3] == 0) {
 					secondMoveDistribution = Arrays.asList(0, 1, 4, 9, 4, 1, 0);
 				} else {
-					secondMoveDistribution = Arrays.asList(0, 1, 3, 5, 3, 1, 0);
+					secondMoveDistribution = Arrays.asList(0, 1, 3, 0, 3, 1, 0);
 				}
 				
 				idealMove = Utility.randomlyDistributedMove(possibleStateActions, secondMoveDistribution);

@@ -54,7 +54,7 @@
 				<label> Auto play?  <input type="checkbox" id="autoPlay"></label>
 			</div>
 			
-			<a onclick="startNewGame();" role="button" class="btn btn-new-game" >Start Game</a>
+			<a id="btnStartGame" role="button" class="btn btn-new-game" >Start Game</a>
 		</div>
 	
 	    
@@ -63,10 +63,7 @@
 			<span id="yellowScore" class="score" style="color: yellow">0</span> 
 	    	<span id="redScore" class="score" style="color: red">0</span>
 	    	<span id="drawScore" class="score">0</span>
-	    	
-<!-- 	    	<div id="currentTurn" > -->
-<!-- 		        Turn: <span id="currentPlayerTurn"> Red </span> -->
-<!-- 		    </div> -->
+	    	<div id="gameWinnerStatus" ></div>
 	    </div>
     </div>
     

@@ -6473,7 +6473,7 @@ Crafty.extend({
             var context = Crafty.canvasLayer.context;
             context.imageSmoothingEnabled = !enabled;
             context.mozImageSmoothingEnabled = !enabled;
-            context.webkitImageSmoothingEnabled = !enabled;
+            context.imageSmoothingEnabled = !enabled;
             context.oImageSmoothingEnabled = !enabled;
             context.msImageSmoothingEnabled = !enabled;
         }

@@ -18,7 +18,9 @@ function log(value) {
 
 // Players:
 var YELLOW = 0,
-    RED = 1;
+    RED = 1,
+    COLUMNS = 7,
+    ROWS = 6;
 
 var gameActive = false,
 	firstRun = true,
@@ -27,25 +29,24 @@ var gameActive = false,
 	scoreboardYellow = document.getElementById('yellowScore'),
 	scoreboardRed = document.getElementById('redScore'),
 	scoreboardDraw = document.getElementById('drawScore'),
+	gameWinnerStatus = document.getElementById('gameWinnerStatus'),
 	autoPlay;
 
 
 function toggleStartInstructions(show) {
-	if(show) {
-		document.getElementById('curtain').style.display = "block";
-	} else {
-		document.getElementById('curtain').style.display = "none";
-	}
+	document.getElementById('curtain').style.display = show ? "block" : "none";
 }
 
-function startNewGame() {
+function startNewGame(e) {
+	Crafty.lastEvent = e;
 	toggleStartInstructions(false);
+	gameWinnerStatus.innerHTML = "";
 	
 	function newGameResponse() {
 		gameActive = true;
 		
 		/**
-		 * Ako nije human player da onda samostalno odigra potez
+		 * Ako pocetni igrac nije covjek, prepustiti inicijalni potez racunaru 
 		 */
 		if(yellowPlayerType != 0) {
 			createAjaxRequest("POST", "/ConnectFour/req", ConnectFour.moveAI, JSON.stringify({
@@ -66,8 +67,8 @@ function startNewGame() {
 	createAjaxRequest("POST", "/ConnectFour/req", newGameResponse, JSON.stringify({
  		type: 0,
      	data: {
-     		columns: 7,
-     		rows: 6,
+     		columns: COLUMNS,
+     		rows: ROWS,
      		startingPlayer: YELLOW,
      		yellow: yellowPlayerType,
      		red: redPlayerType,
@@ -125,6 +126,11 @@ var ConnectFour = (function(){
 	        empty: [2,0]
 	    });
 	    
+	    Crafty.sprite(64, "resources/img/winnerCoins.png", {
+	        winnerRed: [0,0],
+	        winnerYellow: [1,0]
+	    });
+	    
 	    Crafty.scene("game", function() {
 	        //generate board
 	        for(var i = 0; i < 7; i++) {
@@ -140,16 +146,16 @@ var ConnectFour = (function(){
 	                this.z = 3;
 	                this.requires("Mouse, Gravity, Draggable");
 	                this.bind("StopDrag", function() {
-	                    console.log("STOP");
 	                    var column = Math.round(this._x / 64);
 	                    this.x = column * 64;
 	                    this.gravity("stopper");
 	                    this.unbind("mousedown");
 	                    
+	                    //TODO Dodati callback kada se "slegne" disk a ne preko timeouta
 	                    if(gameActive) {
 	                    	setTimeout(function() {
 		                    	handleTurn(column);
-		                    }, 1000)
+		                    }, 1500)
 	                    } else {
 	                    	handleTurn(column);
 	                    }
@@ -162,18 +168,13 @@ var ConnectFour = (function(){
 	            if(row !== COLUMN_FULL && column >= 0 && column < 7) {
 	            	board[column][row] = turn;
 	                
-	                console.log("TURN made by " +(turn ? "red" : "yellow") + "; game active: " + gameActive);
-	                
+                	log((gameActive ? "" : "GAME OVER - ") + (turn ? "RED" : "YELLOW") + " (" + column + ", " + row + ")");
 	                /*if(checkFour(column,row)) {
 	                    win(turn);
 	                    return;
 	                }*/
-	                if(gameActive) {
-	                	if(turn == 0 &&  redPlayerType != 0) {
-		                	makeAIMove(column, row, turn);
-		                } else if(turn == 1 && yellowPlayerType != 0) {
-		                	makeAIMove(column, row, turn);
-		                }
+                	if(gameActive && (turn == 0 &&  redPlayerType != 0) || (turn == 1 && yellowPlayerType != 0)) {
+	                	makeAIMove(column, row, turn);
 	                }
 
 	                turn ^= 1; //alternate turns
@@ -209,10 +210,32 @@ var ConnectFour = (function(){
 	    
 	    // start the game
 	    Crafty.scene("game");
+	    document.getElementById("btnStartGame").addEventListener("click", startNewGame);
 	}
 	
-	function win(turn) {
-		  alert((turn ? "RED" : "YELLOW") +  " has won!");
+	function highlightWinningSequence(player, winnerSequence) {
+        var setWinnerCoin = function(playerWinner, posX, posY) {
+	    	Crafty.e("2D, Canvas, winner" + playerWinner).attr({x: posX, y: posY + 100, z: 4});
+	    } 
+		for(var i = 0; i < winnerSequence.length; i++) {
+			var winnerMove = winnerSequence[i];
+			setWinnerCoin(player, (winnerMove.col) * 64, (ROWS - winnerMove.row - 1) * 64);
+//			Crafty.e("2D, Canvas, " + player ? "winnerRed" : "winnerYellow").attr({x: winnerMove.row * 64, y: winnerMove.col * 64 + 100, z: 2});
+		}
+		
+//		Crafty.e("2D, Canvas, piece, stopper," + (turn ? "winnerRed" : "winnerYellow")).attr({x: 495, y: 420});
+	}
+	
+	//TODO preko crafty-evog callback ovo tek pozvati, nakon sto se coin smiri na poziciji
+	function win(player, winnerSequence) {
+		setTimeout(function() {
+			var winningPlayer = (player ? "Red" : "Yellow");
+			gameWinnerStatus.innerHTML = winningPlayer + " won!";
+			highlightWinningSequence(winningPlayer, winnerSequence);
+		}, 1000);
+//		setTimeout(function() {
+			//alert((turn ? "RED" : "YELLOW") +  " has won!");
+//		}, 100);
 //        Crafty.scene("win");
     }
 	
@@ -224,88 +247,6 @@ var ConnectFour = (function(){
         }
         return COLUMN_FULL;
     }
-
-    function checkFour(column,row) {
-        if(checkVertical(column,row)) return true;
-        if(checkHorizontal(column,row)) return true;
-        if(checkLeftDiagonal(column,row)) return true;
-        if(checkRightDiagonal(column,row)) return true;
-        return false;
-    }
-
-    function checkVertical(column,row) {
-        if(row < 3) return false;
-        for(var i = row; i > row-4; i--) {
-            if(board[column][i] != turn) return false;
-        }
-        return true;
-    }
-
-    function checkHorizontal(column,row) {
-        var counter = 1;
-        for(var i = column-1; i >= 0; i--) {
-            if(board[i][row] != turn) break;
-            counter++;
-        }
-
-        for(var j = column+1; j < 7; j++) {
-            if(board[j][row] != turn) break;
-            counter++;
-        }
-        return counter>=4;
-    }
-
-    function checkLeftDiagonal(column,row) {
-        var counter = 1;
-        var tmp_row = row-1;
-        var tmp_column = column-1;
-
-        while(tmp_row >= 0 && tmp_column >= 0) {
-            if(board[tmp_column][tmp_row] == turn) {
-                counter++;
-                tmp_row--;
-                tmp_column--;
-            } else break;
-        }
-
-        row += 1;
-        column += 1;
-
-        while(row < 6 && column < 7) {
-            if(board[column][row] == turn) {
-                counter++;
-                row++;
-                column++;
-            } else { break; }
-        }
-        return counter>=4;
-    }
-
-    function checkRightDiagonal(column,row) {
-        var counter = 1;
-        var tmp_row = row+1;
-        var tmp_column = column-1;
-
-        while(tmp_row < 6 && tmp_column >= 0) {
-            if(board[tmp_column][tmp_row] == turn) {
-                counter++;
-                tmp_row++;
-                tmp_column--;
-            } else break;
-        }
-
-        row -= 1;
-        column += 1;
-
-        while(row >= 0 && column < 7) {
-            if(board[column][row] == turn) {
-                counter++;
-                row--;
-                column++;
-            } else break;
-        }
-        return counter>=4;
-    }
     
     function placeCoin(column) {
     	current.startDrag();
@@ -314,32 +255,42 @@ var ConnectFour = (function(){
     }
     
     function moveAI(result) {
-    	var response = JSON.parse(result),
-    		column = response.column,
+    	var response = JSON.parse(result);
+    		
+    	if(!response) {
+    		log("Invalid response");
+    		return;
+    	}
+    	
+    	var	column = response.column,
     		gameResult = response.gameResult;
     	
     	if(gameResult != -1) {
-    		//placeCoin(column);
     		gameActive = false;
-    		placeCoin(column);
+    		
+    		if(gameResult != 3 && typeof column !== "undefined") {
+        		placeCoin(column);
+    		}
     		
     		if(gameResult == 0){
     			scoreboardYellow.innerHTML = parseInt(scoreboardYellow.innerHTML) + 1;
     			if(!autoPlay)
-    				win(gameResult);
+    				win(gameResult, response.winnerSequence);
     		} else if(gameResult == 1) {
     			scoreboardRed.innerHTML = parseInt(scoreboardRed.innerHTML) + 1;
     			if(!autoPlay)
-    				win(gameResult);
-    		} else if(gameResult = 2) {
+    				win(gameResult, response.winnerSequence);
+    		} else if(gameResult == 2) {
     			scoreboardDraw.innerHTML = parseInt(scoreboardDraw.innerHTML) + 1;
     			if(!autoPlay)
     				alert("Draw!");
     		}
     		
-    		if(autoPlay) {
-    			startNewGame();
-    		}
+    		setTimeout(function() {
+    			if(autoPlay) {
+        			startNewGame();
+        		}
+    		}, 1500);
     	} else {
     		placeCoin(column);
     	}

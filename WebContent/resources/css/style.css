@@ -120,6 +120,14 @@ body {
   	left: 10px;
 }
 
+#gameWinnerStatus {
+    width: 282px;
+    font-size: 38px;
+    text-align: center;
+    float: right;
+    margin-top: 23px;
+}
+
 .depth {
 	margin-left: 5px;
 }

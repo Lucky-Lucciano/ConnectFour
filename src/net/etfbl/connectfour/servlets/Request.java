@@ -71,7 +71,7 @@ public class Request extends HttpServlet {
 		
 		switch(requestObj.get("type").getAsInt()) {
 			case 0:
-				// Create a new game
+				// Pokrenuti novu igru
 				JsonObject gameData = requestObj.get("data").getAsJsonObject();
 				//System.out.println("Creating game: " + requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt() + " yel type :" +  gameData.get("yellow").getAsInt());
 				game = new Game(gameData.get("rows").getAsInt(), gameData.get("columns").getAsInt(), gameData.get("startingPlayer").getAsInt(),
@@ -79,10 +79,16 @@ public class Request extends HttpServlet {
 						gameData.get("yellowDepth").getAsInt(), gameData.get("redDepth").getAsInt());
 				break;
 			case 1:
-				//Handle move for current game
+				// Obrada poteza za trenutnu igru
 				JsonObject moveInfo = requestObj.get("data").getAsJsonObject();
-				String AIMove = game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
-				pw.println(AIMove);
+//				try {
+					String AIMove = game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
+					pw.println(AIMove);
+//				} catch(Exception e) {
+//					System.out.println("Move handler exception: " + e.getMessage());
+//					return;
+//				}
+					break;
 			default:
 				break;
 		}

@@ -3,7 +3,11 @@ package net.etfbl.connectfour;
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
 
 import net.etfbl.connectfour.Game.Player;
 
@@ -124,7 +128,73 @@ public class GameBoard {
 			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 0, 1);
 			fourConnected = (fourConnected) ? fourConnected : this.checkFourConnection(currentPlayerVal, row, column, 1, 1);
 //		}
+			
 		return fourConnected;
+	}
+	
+	public List<Map<String, Integer>> getWinnerSequence(int row, int column, int currentPlayerVal){
+		if(this.checkFourConnection(currentPlayerVal, row, column, 1, 0)) {
+			return this.getWinnerConnection(currentPlayerVal, row, column, 1, 0);
+		} else if(this.checkFourConnection(currentPlayerVal, row, column, 1, -1)) {
+			return this.getWinnerConnection(currentPlayerVal, row, column, 1, -1);
+		}else if(this.checkFourConnection(currentPlayerVal, row, column, 0, 1)) {
+			return this.getWinnerConnection(currentPlayerVal, row, column, 0, 1);
+		} else if(this.checkFourConnection(currentPlayerVal, row, column, 1, 1)) {
+			return this.getWinnerConnection(currentPlayerVal, row, column, 1, 1);
+		}
+		
+		return null;
+	}
+	
+	public List<Map<String, Integer>> getWinnerConnection(int currentPlayerVal, int x, int y, int dx, int dy) {
+		int length = 1;
+		int i = 1;
+		
+		List<Map<String, Integer>> winnerSequence = new ArrayList<Map<String, Integer>>();
+        Map<String, Integer> winnerMove = new HashMap<String, Integer>();
+        winnerMove.put("row", x);
+		winnerMove.put("col", y);
+		winnerSequence.add(winnerMove);
+        
+		while(this.isValidMove(x + dx*i, y + dy*i)) {
+			if(this.board[x + dx*i][y + dy*i] == currentPlayerVal) {
+				winnerMove = new HashMap<String, Integer>();
+				winnerMove.put("row", x + dx*i);
+				winnerMove.put("col", y + dy*i);
+				winnerSequence.add(winnerMove);
+				
+				length++;
+				i++;
+				if(length >= 4) {
+					return winnerSequence;
+				}
+			}
+			else {
+				break;
+			}
+		}
+		
+		i = -1;
+		while(this.isValidMove(x + dx*i,y + dy*i)) {
+			if(this.board[x+ dx*i][y+ dy*i] == currentPlayerVal) {
+				winnerMove = new HashMap<String, Integer>();
+				winnerMove.put("row", x + dx*i);
+				winnerMove.put("col", y + dy*i);
+				winnerSequence.add(winnerMove);
+				
+				length++;
+				i--;
+				
+				if(length >= 4) {
+					return winnerSequence;
+				}
+			}
+			else {
+				break;
+			}
+		}
+
+		return winnerSequence;
 	}
 	
 	public boolean checkFourConnection(int currentPlayerVal, int x, int y, int dx, int dy) {

@@ -59,7 +59,7 @@ public class AlphaBetaPruning extends Algorithm{
 			value = maxAlphaBetaValue(board, initalMove, this.Max, depth, alphaNuclearOption, betaNuclearOption, true);
 		}
 		
-		if(this.currentPly < 8 && this.isUnevaluatedMove) {
+		if(this.currentPly < 12 && this.isUnevaluatedMove) {
 			System.out.println("ALPHA BETA - mid-game zero score getting random distribution based move...");
 			this.isUnevaluatedMove = false;
 			this.bestMove = Heuristics.evaluatedMidStartMoveConnectFour(board, Max, currentPly);
@@ -136,7 +136,7 @@ public class AlphaBetaPruning extends Algorithm{
                 		this.isUnevaluatedMove = false;
                 	}
                 	
-                	System.out.println("+ ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]" + " - unevaluated: " + this.isUnevaluatedMove);
+                	System.out.println("+ ROOT (" + i + ") Alpha: " + alpha + " - Score: " + score + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]" + " - unevaluated: " + this.isUnevaluatedMove);
                 	/*if(score == alpha && this.currentPly < 4) {
                 		System.out.println("0 ROOT (" + i + ") Score: " + score + " - Alpha: " + alpha + "; [" + currentState.getRow() + "][" + currentState.getColumn() +"]");
                 		this.maxMoves.add(new Move(currentState.getRow(), currentState.getColumn()));

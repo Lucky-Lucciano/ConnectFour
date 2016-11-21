@@ -1,6 +1,7 @@
 package net.etfbl.connectfour;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -41,7 +42,7 @@ public class Game {
 		this.player2 = Utility.oppositePlayer(player1);
 		this.player1Score = 0;
 		this.player2Score = 0;
-		this.plyNumber = 0;
+		this.plyNumber = 1;
 		this.currentPlayer = this.player1;
 		this.gameActive = true;
 		this.depthYellow = depthYellow;
@@ -99,14 +100,31 @@ public class Game {
 
 	public String makeMove(int row, int col) {
 		/**
-		 * Provjera ako nije null, znaci da je trenutno na potezu AI pa ne treba setovati piece jer se to vec radi u AIPlay
+		 * Prvo se vrsi provjera da li je nekome od igraca dodijeljen algoritam, ukoliko nije samo treba setovati disk na oznacenu poziciju na tabli.
+		 * Ako jeste onda je trenutno na potezu AI i potrebno je sacekati njegov potez.
 		 * 
-		 * ATN: Ako je trenutni igrac HUMAN i nije prvi potez u pitanju da se registruje odigrani HUMAN potez i proslijedi dalje da AI odigra svoj
 		 */		
 		// TODO Zasto se smatra da poslje covjeka mora AI odigrati? Modfikovati da je moguce HUMAN vs HUMAN
 		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : yellowPlayerAlogrithm == null) && row != -1 && col != -1) {
 			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 			ConnectFourBoard.setPiece(row, col, currentPlayer);
+			
+	        int gameState = checkGameCompleted(row, col);
+	        this.gameActive = gameState == -1;
+
+	        if(!this.gameActive) {
+	        	System.out.println("GAME DONE - after player move! Result: " + gameState);
+	        	
+	        	Gson gson = new Gson();
+		        Map<String, Object> resultsMap = new HashMap<String, Object>();
+		        resultsMap.put("gameResult", gameState);
+		        if(gameState == 0 || gameState == 1) {
+		        	resultsMap.put("winnerSequence", ConnectFourBoard.getWinnerSequence(row, col, currentPlayer == Player.YELLOW ? GameBoard.YELLOW : GameBoard.RED));
+		        }
+		        
+	        	return gson.toJson(resultsMap);
+	        }
+	        
 			currentPlayer = Utility.oppositePlayer(currentPlayer);
 		}
 		
@@ -114,8 +132,14 @@ public class Game {
 	}
 	
 	public String AIPlay() {
+		Gson gson = new Gson();
+        Map<String, Object> resultsMap = new HashMap<String, Object>();
+
+        // Stigao request sa klijentske strane iako je igra zavrsena.
         if(!this.gameActive) {
-            return null;
+        	resultsMap.put("gameResult", 3);
+        	
+        	return gson.toJson(resultsMap);
         }
         
         this.plyNumber++;
@@ -140,18 +164,22 @@ public class Game {
         
         int currentRow = idealMove.getRow();
         int currentColumn = idealMove.getColumn();
+        int gameState = checkGameCompleted(currentRow, currentColumn);
 
         ConnectFourBoard.setPiece(currentColumn, currentPlayer);
         System.out.println("End state : \n" + ConnectFourBoard);
         System.out.println("-------------------------------------------------");
         
-        Gson gson = new Gson();
-        Map<String, Integer> resultsMap = new HashMap<String, Integer>();
         resultsMap.put("row", idealMove.getRow());
         resultsMap.put("column", idealMove.getColumn());
-        resultsMap.put("gameResult", checkGameCompleted(currentRow, currentColumn));
+        resultsMap.put("gameResult", gameState);
+        if(gameState == 0 || gameState == 1) {
+        	resultsMap.put("winnerSequence", ConnectFourBoard.getWinnerSequence(currentRow, currentColumn, currentPlayer == Player.YELLOW ? GameBoard.YELLOW : GameBoard.RED));
+        }
         
         currentPlayer = Utility.oppositePlayer(currentPlayer);
+        
+        this.gameActive = gameState == -1;
 
         return gson.toJson(resultsMap);
     };
@@ -161,7 +189,7 @@ public class Game {
      * 
      * @param currentRow
      * @param currentColumn
-     * @return Redni broj igraca koji je pobijedio (YELLOW = 0, RED = 1) ili igra jos traje pa vrati po defaultu -1
+     * @return Redni broj igraca koji je pobijedio (YELLOW = 0, RED = 1). Ako igra nije zavrsena vraca defaultnu vrijednost (-1)
      */
     private Integer checkGameCompleted(int currentRow, int currentColumn) {
     	int currentPlayerVal = (currentPlayer == Player.YELLOW ? GameBoard.YELLOW : GameBoard.RED);
@@ -169,7 +197,7 @@ public class Game {
     	
     	if(ConnectFourBoard.checkFour(currentRow, currentColumn, currentPlayerVal)) {
     		result = currentPlayerVal;
-    		System.out.println("WIN! Player " + (currentPlayer == Player.YELLOW ? "YELLOW": "RED") + " has won.");
+    		System.out.println("WIN! Player " + (currentPlayer == Player.YELLOW ? "YELLOW": "RED") + " has won via (" + currentRow + ", " + currentColumn + ")");
     	} else if(ConnectFourBoard.isBoardFull()) {
     		System.out.println("Draw - BOARD FULL!");
     		result = 2;
