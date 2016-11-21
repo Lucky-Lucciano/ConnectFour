@@ -146,12 +146,12 @@ public class Heuristics {
 		int winningMoves = 0;
 		int winningMovesRed = 0;
 		int winningMovesYellow = 0;
-		int lowestPosition;
+		int lowestPosition = 0;
 		// Go trough all columns
 		for (int x = 0; x < board.getnCols(); x++){			
 			// TODO umjesto getrows staviti red koji je min s obe strane jer nema smisla ici u visinu
 			//      nije efikasno sada? ili je ipak ok....
-			lowestPosition = 0;
+			//		lowestPosition = 0;
 			
 			for (int y = nextFreeRowPosition[x]; y < board.getnRows(); y++){
 				lowestPosition++;
@@ -275,7 +275,8 @@ public class Heuristics {
 				/**
 				 * Prvi potez, statisticki gledano, najbolje je odgirati u centralnoj koloni
 				 */
-				idealMove = new Move(3, 3);
+				//TODO Postaviti distribuciju na firstMoveDistribution = Arrays.asList(0, 0, 3, 9, 3, 0, 0);
+				idealMove = new Move(0, 3);
 				break;
 			case 2:
 				/**
@@ -286,6 +287,10 @@ public class Heuristics {
 				if(nextFreeRowPosition[3] == 0) {
 					secondMoveDistribution = Arrays.asList(0, 1, 4, 9, 4, 1, 0);
 				} else {
+					//TODO Korisiti distribuciju: Arrays.asList(0, 2, 6, 7, 6, 2, 0);
+					
+					//TODO BUG: Ovdje je 0 na sredini jer moramo biti sigurni da su centralne kolone zauzete kako nas ne bi covjek pobijedio u 4 poteza,
+					//           jer ne provjeramo nista prva 4 poteza ukoliko je unevaluated state.
 					secondMoveDistribution = Arrays.asList(0, 1, 3, 0, 3, 1, 0);
 				}
 				
@@ -299,36 +304,26 @@ public class Heuristics {
 	}
 	
 	/**
-	 * Pomocna metoda koja vraca random move zasnovan na evaluation tabeli ukoliko prvih nekoliko poteza algoritam vraca draw poziciju
-	 * i bira prvu kolonu 
-	 * @param board
-	 * @param player
-	 * @param ply
-	 * @return 
+	 * Pomocna metoda koja vraca random move zasnovan na evaluation tabeli ukoliko prvih nekoliko poteza algoritam vraca draw poziciju.
+	 * U random generator ubacuje svaki moguæi potez onoliko puta koliko je specificirano tabelom evaluacije za tu kolonu. 
 	 */
 	public static Move evaluatedMidStartMoveConnectFour(GameBoard board, Player player, int ply) {
 		List<Move> possibleStateActions = board.stateActions();
-		
 		int[] nextFreeRowPosition = new int[7];
-		for (int x = 0; x < board.getnCols(); x++){
-			nextFreeRowPosition[x] = board.findEmptyRow(x);
-		}
-		
 		Move idealMove = null;
 	
-		for (int x = 0; x < board.getnCols(); x++){
+		for(int x = 0; x < board.getnCols(); x++){
 			nextFreeRowPosition[x] = board.findEmptyRow(x);
 		}
 		List<Integer> lowerRowStandardDistribution = Arrays.asList(
-														evaluationTableConnectFour[0][0],
-														evaluationTableConnectFour[0][1],
-														evaluationTableConnectFour[0][2],
-														evaluationTableConnectFour[0][3],
-														evaluationTableConnectFour[0][4],
-														evaluationTableConnectFour[0][5],
-														evaluationTableConnectFour[0][6]
+														evaluationTableConnectFour[nextFreeRowPosition[0]][0],
+														evaluationTableConnectFour[nextFreeRowPosition[1]][1],
+														evaluationTableConnectFour[nextFreeRowPosition[2]][2],
+														evaluationTableConnectFour[nextFreeRowPosition[3]][3],
+														evaluationTableConnectFour[nextFreeRowPosition[4]][4],
+														evaluationTableConnectFour[nextFreeRowPosition[5]][5],
+														evaluationTableConnectFour[nextFreeRowPosition[6]][6]
 													);
-		//TODO Za poteze preko 7-8 plya uzeti mid-lower distribuciju umjesto ove najnize
 		
 		idealMove = Utility.randomlyDistributedMove(possibleStateActions, lowerRowStandardDistribution);
 		

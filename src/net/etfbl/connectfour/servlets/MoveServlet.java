@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * NOT USED
+ * 
  * Servlet implementation class MoveServlet
  */
 @WebServlet("/move")

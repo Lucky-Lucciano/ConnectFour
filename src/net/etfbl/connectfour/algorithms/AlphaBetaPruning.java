@@ -2,10 +2,7 @@ package net.etfbl.connectfour.algorithms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import net.etfbl.connectfour.GameBoard;
 import net.etfbl.connectfour.Move;
@@ -50,7 +47,7 @@ public class AlphaBetaPruning extends Algorithm{
 		System.out.println("Starting *AlphaBeta* decision - Max: " + Max + "; Min: " + Min + "; Depth: " + depth + "; Ply: " + currentPly);
 		
 		/**
-		 * Prva dva poteza je tesko evaluirati(ocjeniti) algoritmom zato se na osnovu prethdnog iskustva uzimaju predoredjeni potezi.
+		 * Prva dva poteza je tesko evaluirati(ocjeniti) algoritmom zato se na osnovu prethdnog iskustva uzimaju predodredjeni potezi.
 		 * 
 		 */
 		if(this.currentPly < 3) {
@@ -59,6 +56,11 @@ public class AlphaBetaPruning extends Algorithm{
 			value = maxAlphaBetaValue(board, initalMove, this.Max, depth, alphaNuclearOption, betaNuclearOption, true);
 		}
 		
+		/**
+		 * Ukoliko u prvih 6 poteza (12 ply) algoritam ne donese nikakvu odluku o svom narednom potezu,
+		 * uzeti nasumièan potez na osnovu tabele evaluacije.
+		 * 
+		 */
 		if(this.currentPly < 12 && this.isUnevaluatedMove) {
 			System.out.println("ALPHA BETA - mid-game zero score getting random distribution based move...");
 			this.isUnevaluatedMove = false;
@@ -87,6 +89,10 @@ public class AlphaBetaPruning extends Algorithm{
         int lowerDepth = depth - 1;
         
         if(terminalState != null) {
+        	/**
+        	 * Vraca ocjenu terminalnog stanja pomnozenu sa dubinom
+        	 */
+        	//TODO BUG? Trebalo bi oduzeti pocetnu dubinu od trenutne tako da "plici" potezi imaju bolju ocjenu
         	return terminalState * depth;
         } else if(lowerDepth <= 0) {
             int eval = 0;
@@ -96,7 +102,6 @@ public class AlphaBetaPruning extends Algorithm{
         	} else if(evalType == 2)  {
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
         	} else if(evalType == 3) {
-
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, false);
         	}
             
