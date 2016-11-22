@@ -69,6 +69,9 @@ public class Game {
 			case 5:
 				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 3);
 				break;
+			case 6:
+				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 4);
+				break;
 			default:
 				break;
 		}
@@ -93,6 +96,9 @@ public class Game {
 			case 5:
 				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 3);
 				break;
+			case 6:
+				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 4);
+				break;
 			default:
 				break;
 		}
@@ -108,6 +114,7 @@ public class Game {
 		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : yellowPlayerAlogrithm == null) && row != -1 && col != -1) {
 			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 			ConnectFourBoard.setPiece(row, col, currentPlayer);
+			this.plyNumber++;
 			
 	        int gameState = checkGameCompleted(row, col);
 	        this.gameActive = gameState == -1;
@@ -142,8 +149,6 @@ public class Game {
         	return gson.toJson(resultsMap);
         }
         
-        this.plyNumber++;
-        
         GameBoard currentBoardState = new GameBoard(ConnectFourBoard.getBoard());
         Integer[][] testState = {
         		{1, 0, 1, 0, 0, 1, 0},
@@ -164,9 +169,12 @@ public class Game {
         
         int currentRow = idealMove.getRow();
         int currentColumn = idealMove.getColumn();
+        
+        ConnectFourBoard.setPiece(currentColumn, currentPlayer);
+        this.plyNumber++;
+        
         int gameState = checkGameCompleted(currentRow, currentColumn);
 
-        ConnectFourBoard.setPiece(currentColumn, currentPlayer);
         System.out.println("End state : \n" + ConnectFourBoard);
         System.out.println("-------------------------------------------------");
         
@@ -204,6 +212,8 @@ public class Game {
     	} else {
     		result = -1;
     	}
+    	
+    	System.out.println("Game result => " + result);
     	
     	return result;
     }

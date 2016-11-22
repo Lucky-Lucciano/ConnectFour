@@ -90,9 +90,8 @@ public class AlphaBetaPruning extends Algorithm{
         
         if(terminalState != null) {
         	/**
-        	 * Vraca ocjenu terminalnog stanja pomnozenu sa dubinom
+        	 * Vraca ocjenu terminalnog stanja pomnozenu sa dubinom, tako da "plici" potezi imaju bolju ocjenu
         	 */
-        	//TODO BUG? Trebalo bi oduzeti pocetnu dubinu od trenutne tako da "plici" potezi imaju bolju ocjenu
         	return terminalState * depth;
         } else if(lowerDepth <= 0) {
             int eval = 0;
@@ -103,6 +102,8 @@ public class AlphaBetaPruning extends Algorithm{
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
         	} else if(evalType == 3) {
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, false);
+        	} else if(evalType == 4) {
+        		eval = Heuristics.stateEvaluationConnectFourImprovedTester(new GameBoard(board.getBoard()), previousPlayer, true);
         	}
             
             return eval;
@@ -178,6 +179,8 @@ public class AlphaBetaPruning extends Algorithm{
         		eval = Heuristics.stateEvaluationConnectFourSimple(new GameBoard(board.getBoard()), previousPlayer);
         	} else if(evalType == 3){
         		eval = Heuristics.stateEvaluationConnectFourImproved(new GameBoard(board.getBoard()), previousPlayer, false);
+        	} else if(evalType == 4) {
+        		eval = Heuristics.stateEvaluationConnectFourImprovedTester(new GameBoard(board.getBoard()), previousPlayer, true);
         	}
             
             return eval;

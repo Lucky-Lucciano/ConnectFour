@@ -12,8 +12,8 @@ import com.google.gson.Gson;
 import net.etfbl.connectfour.Game.Player;
 
 public class GameBoard {
-	private static final int MAX_WIN_MULTIPLIER = 6;
-	private static final int MIN_WIN_MULTIPLIER = 7;
+	private static final int MAX_WIN_SCORE = 6;
+	private static final int MIN_WIN_SCORE = 7;
 	private static final int COLUMN_FULL = -2;
 	
 	public static final int YELLOW = 0;
@@ -103,12 +103,12 @@ public class GameBoard {
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
 			int score;
 			if(previousPlayer == playerMax) {
-				score = MAX_WIN_MULTIPLIER * MAX_WON;
+				score = MAX_WIN_SCORE * MAX_WON;
 			} else {
 				/**
 				 * Da bude veca kazna od pobjede
 				 */
-				score = MIN_WIN_MULTIPLIER * MIN_WON;
+				score = MIN_WIN_SCORE * MIN_WON;
 			}
 			
 			return score;

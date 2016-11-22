@@ -54,7 +54,7 @@ function startNewGame(e) {
             	data: {
             		column: -1,
             		row: -1,
-            		player: 0
+            		player: YELLOW
             	}
         	}));
 		}
@@ -262,15 +262,17 @@ var ConnectFour = (function(){
     		return;
     	}
     	
-    	var	column = response.column,
-    		gameResult = response.gameResult;
+    	var gameResult = response.gameResult;
+    	if(gameResult == 3) {
+    		gameActive = false;
+    		return;
+    	}
+    	
+    	var	column = response.column;
     	
     	if(gameResult != -1) {
     		gameActive = false;
-    		
-    		if(gameResult != 3 && typeof column !== "undefined") {
-        		placeCoin(column);
-    		}
+    		placeCoin(column);
     		
     		if(gameResult == 0){
     			scoreboardYellow.innerHTML = parseInt(scoreboardYellow.innerHTML) + 1;
@@ -286,11 +288,15 @@ var ConnectFour = (function(){
     				alert("Draw!");
     		}
     		
-    		setTimeout(function() {
-    			if(autoPlay) {
-        			startNewGame();
-        		}
-    		}, 1500);
+    		if(autoPlay) {
+    			startNewGame();
+    		}
+    		
+//    		setTimeout(function() {
+//    			if(autoPlay) {
+//        			startNewGame();
+//        		}
+//    		}, 1500);
     	} else {
     		placeCoin(column);
     	}

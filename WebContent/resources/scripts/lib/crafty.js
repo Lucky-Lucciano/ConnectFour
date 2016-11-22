@@ -182,6 +182,12 @@ Crafty.c("Draggable", {
     },
 
     _startDrag: function (e) {
+    	if(typeof e == "undefined") {
+    		document.getElementById("yellowScore").addEventListener("click", function(evt) {
+    			e = evt;
+    		});
+    		document.getElementById("yellowScore").click();
+    	}
         this._origX = e.realX;
         this._origY = e.realY;
         this._oldX = this._x;
