@@ -19,9 +19,7 @@ import net.etfbl.connectfour.Utility;
 public class Minimax extends Algorithm{	
 	Player Max;
 	Player Min;
-	
 	int evalType;
-	
 	List<Integer> probabilityDistribution = Arrays.asList(1, 2, 3, 4, 3, 2, 1);
 	
 	public Minimax(Player maxPlayer, int type) {
@@ -32,7 +30,6 @@ public class Minimax extends Algorithm{
 	
 	@Override
 	public Move getIdealMove(GameBoard board, int depth, int ply) {
-//		System.out.println("START Minimax for " + player + "; algo type: [" + this.evalType + "]");
 		return minimaxDecision(board, depth);
 	}
 	
@@ -44,7 +41,6 @@ public class Minimax extends Algorithm{
 		
 		for(int i = 0; i < possibleStateActions.size(); i++) {
 			currentAction = possibleStateActions.get(i);
-			
 			actionUtilities.put(i, minValue(board.actionResult(new GameBoard(board.getBoard()), currentAction, Max), currentAction, Max, depth));
 		}
 		
@@ -156,15 +152,9 @@ public class Minimax extends Algorithm{
 	static Move getRandomMove(GameBoard board) {
 		List<Integer> availableColumns = board.getFreeColumns();
         int randomColumn = availableColumns.get(Utility.randomInteger(0, availableColumns.size()));
-        
 		Move moveRandom = new Move(board.findEmptyRow(randomColumn), randomColumn);
 		
-//		Gson gson = new GsonBuilder().create();
-//		Gson gson = new Gson();
-//		System.out.println("Random col:" + availableColumns.get(randInt(0, availableColumns.size())));
-		
         return moveRandom;
-//		return null;
     };
     
     static Move getRandomMoveWithDistribution(GameBoard board) {

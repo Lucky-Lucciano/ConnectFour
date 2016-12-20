@@ -22,8 +22,8 @@ import net.etfbl.connectfour.Game;
 public class Request extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	// Depth == 4 - 50% win rate for me
-	// Depth == 5 - 1% win rate for me
+	// Depth == 5 - 80% win rate for me
+	// Depth == 6 - 30% win rate for me
 	private static final int DEPTH = 8;
     
 	public Game game;
@@ -73,7 +73,6 @@ public class Request extends HttpServlet {
 			case 0:
 				// Pokrenuti novu igru
 				JsonObject gameData = requestObj.get("data").getAsJsonObject();
-				//System.out.println("Creating game: " + requestObj.get("data").getAsJsonObject().get("startingPlayer").getAsInt() + " yel type :" +  gameData.get("yellow").getAsInt());
 				game = new Game(gameData.get("rows").getAsInt(), gameData.get("columns").getAsInt(), gameData.get("startingPlayer").getAsInt(),
 						gameData.get("yellow").getAsInt(), gameData.get("red").getAsInt(), gameData.get("autoPlay").getAsBoolean(),
 						gameData.get("yellowDepth").getAsInt(), gameData.get("redDepth").getAsInt());
@@ -81,19 +80,13 @@ public class Request extends HttpServlet {
 			case 1:
 				// Obrada poteza za trenutnu igru
 				JsonObject moveInfo = requestObj.get("data").getAsJsonObject();
-//				try {
-					String AIMove = game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
-					pw.println(AIMove);
-//				} catch(Exception e) {
-//					System.out.println("Move handler exception: " + e.getMessage());
-//					return;
-//				}
-					break;
+				String AIMove = game.makeMove(moveInfo.get("row").getAsInt(), moveInfo.get("column").getAsInt());
+				pw.println(AIMove);
+				break;
 			default:
 				break;
 		}
 		
 		pw.close();
-		//response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 }

@@ -1,13 +1,9 @@
 package net.etfbl.connectfour;
 
-import java.lang.annotation.Documented;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.gson.Gson;
 
 import net.etfbl.connectfour.Game.Player;
 
@@ -30,7 +26,6 @@ public class GameBoard {
 	public GameBoard(int nRows, int nCols) {
 		this.nRows = nRows;
 		this.nCols = nCols;
-		
 		this.board = new Integer[nRows][nCols];
 		
 		for(int i = 0; i < nRows; i++) {
@@ -46,7 +41,6 @@ public class GameBoard {
 		this.board = new Integer[nRows][nCols];
 		for(int i = 0; i < this.nRows; i++) {
 			for(int j = 0; j < this.nCols; j++) {
-//				System.out.println("i: " + i + " - j: " + j + "; " + board[i][j]);
 			    this.board[i][j] = board[i][j];
 			}
 		}
@@ -64,8 +58,6 @@ public class GameBoard {
                 freeColumns.add(i);
         }
         
-		//System.out.println(Arrays.deepToString(this.board));
-		//System.out.println(Arrays.toString(this.board[0]));
         return freeColumns;
     }
 	
@@ -87,27 +79,19 @@ public class GameBoard {
 	}
 	
 	public void setPiece(int row, int column, Player player) {
-//		System.out.println("Inserting piece " + player + "; ordinal: " + (Integer) player.ordinal());
-		
 		if(row != COLUMN_FULL && column >= 0 && column < this.nCols) {
 			this.board[row][column] = (Integer) player.ordinal();
 		}
     }
 	
 	public Integer checkTerminalState(Move previousMove, Player previousPlayer, Player playerMax) {
-//		System.out.println("TERM check: " + previousMove.getRow());
 		int currentPlayerVal = (previousPlayer == Player.YELLOW ? YELLOW : RED);
-		
-		// OBSOLETE: jednostavni nacin provjere connect 4 koji je dosta sporiji od trenutnog
-		//if(checkFourSimple(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
+
 		if(checkFour(previousMove.getRow(), previousMove.getColumn(), currentPlayerVal)) {
 			int score;
 			if(previousPlayer == playerMax) {
 				score = MAX_WIN_SCORE * MAX_WON;
 			} else {
-				/**
-				 * Da bude veca kazna od pobjede
-				 */
 				score = MIN_WIN_SCORE * MIN_WON;
 			}
 			
@@ -231,13 +215,14 @@ public class GameBoard {
 		int y = previousMove.getColumn();
 //		if(this.board[x][y] != 0) {
 		
-		// VERTIKALNO - kolona miruje (0) dok se redovi pomjeraju obostrano
+		//TODO osposobiti vertikalno ka gore?
+		// VERTIKALNO - kolona miruje (0) dok se redovi pomijeraju obostrano
 //		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, 0);
-		// HORIZONTALNO - red miruje (0) dok se kolone pomjeraju obostrano
+		// HORIZONTALNO - red miruje (0) dok se kolone pomijeraju obostrano
 		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 0, 1);
 		// DIJAGONALA - odozgo ka dole 
 		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, -1);
-		// DIJAGONALA - odzdo ka gore 
+		// DIJAGONALA - odozdo ka gore 
 		isForked = (isForked) ? isForked : this.check3Fork(previousPlayer, x, y, 1, 1);
 //		}
 		return isForked;
@@ -294,13 +279,12 @@ public class GameBoard {
         return true;
     }
 	
-	//returns true if the chip is on the board
+	//Uslov je zadovoljen ukoliko je disk na tabli
 	public boolean isValidMove(int row, int column) {
 		return (0 <= row && row < this.nRows && 0 <= column && column < this.nCols);
 	}
 	
 	public GameBoard actionResult(GameBoard gameBoard, Move moveToMake, Player player) {
-//			System.out.println("Move (row, col): " + moveToMake.getRow() + ", " + moveToMake.getColumn());
 		gameBoard.setPiece(moveToMake.getRow(), moveToMake.getColumn(), player);
 		return gameBoard;
 	}
@@ -322,137 +306,6 @@ public class GameBoard {
 		
 		return actions;
 	}
-	
-	public boolean checkFourSimple(int row, int column, int player) {
-        if(checkVertical(row, column, player))
-        	return true;
-        if(checkHorizontal(row, column, player))
-        	return true;
-        if(checkLeftDiagonal(row, column, player))
-        	return true;
-        if(checkRightDiagonal(row, column, player))
-        	return true;
-        
-        return false;
-    }
-
-	private boolean checkVertical(int row, int column, int player) {
-        /*
-         * Ako je broj reda zadnje ubacenog elementa manja od 3, ne treba ni provjervati da li su 4 u nizu 
-         */
-		if(row < 3)
-        	return false;
-        
-		/*
-         * U 4 uzastopna reda elementi se moraju poklapati sa bojom igraca koji je odigrao zadnj potez, inace nije moguce da su 4 u vertikali
-         */
-		
-        for(int i = row; i > row - 4; i--) {
-        	try {
-	            if(board[i][column] != player)
-	            	return false;
-        	} catch(ArrayIndexOutOfBoundsException ex){
-    			System.out.println("checVertical ArrayBounds ex: " + ex.getMessage() + " curr row: " + i + " - nRows :" + nRows 
-    					+ " - row :" + row
-    					+ " - column: " + column);
-    		}
-        }
-		
-        
-        return true;
-    }
-
-	private boolean  checkHorizontal(int row, int column, int player) {
-		/*
-         * Pocetna vrijednost je 1 jer se podrazumjeva da je trenutni igrac odigrao potez
-         */
-        int counter = 1;
-        
-        /*
-         * Od trenutne pozicije broji se prvo koliko susjednih elemenata s lijeve strane pripada trenuntom igracu, zatim se na taj zbir doda i
-         * broj elemenata s desne strane i ako je broj istih elemenata koji granice vec ili jedank od 4 onda su spojena 4. 
-         */
-        for(int i = column - 1; i >= 0; i--) {
-            if(board[row][i] != player)
-            	break;
-            counter++;
-        }
-        for(int j = column + 1; j < 7; j++) {
-            if(board[row][j] != player)
-            	break;
-            counter++;
-        }
-        
-        return counter >= 4;
-    }
-
-	private boolean  checkLeftDiagonal(int row, int column, int player) {
-        int counter = 1;
-        int tmp_row = row - 1;
-        int tmp_column = column - 1;
-        
-        /*
-         * Od trenutne pozicije se prvo spustimo na po jednu kolonu i red nize pa provjeravamo da li element pripada trenutnom igracu, 
-         * ako da uvecavamo brojac. Zatim provjerimo i gornje desne susjede i ako je zbirno vise od 4 u lijevoj dijagonali povezana su 4.
-         */
-        while(tmp_row >= 0 && tmp_column >= 0) {
-            if(board[tmp_row][tmp_column] == player) {
-                counter++;
-                tmp_row--;
-                tmp_column--;
-            } else {
-            	break;
-            }
-        }
-
-        row += 1;
-        column += 1;
-
-        while(row < 6 && column < 7) {
-            if(board[row][column] == player) {
-                counter++;
-                row++;
-                column++;
-            } else { 
-            	break; 
-            }
-        }
-        return counter >= 4;
-    }
-
-	private boolean  checkRightDiagonal(int row, int column, int player) {
-        int counter = 1;
-        int tmp_row = row + 1;
-        int tmp_column = column - 1;
-
-        /*
-         * Od trenutne pozicije se prvo spustimo na jednu kolonu i dignemo red navise pa provjeravamo da li element pripada trenutnom igracu, 
-         * ako da uvecavamo brojac. Zatim provjerimo i gornje lijeve susjede i ako je zbirno vise od 4 u lijevoj dijagonali povezana su 4.
-         */
-        while(tmp_row < 6 && tmp_column >= 0) {
-            if(board[tmp_row][tmp_column] == player) {
-                counter++;
-                tmp_row++;
-                tmp_column--;
-            } else {
-            	break;
-            }
-        }
-
-        row -= 1;
-        column += 1;
-
-        while(row >= 0 && column < 7) {
-            if(board[row][column] == player) {
-                counter++;
-                row--;
-                column++;
-            } else {
-            	break;
-            }
-        }
-        return counter >= 4;
-    }
 	
 	@Override
 	public String toString() {

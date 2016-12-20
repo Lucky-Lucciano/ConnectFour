@@ -1,12 +1,9 @@
 package net.etfbl.connectfour;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import net.etfbl.connectfour.Game.Player;
 import net.etfbl.connectfour.algorithms.AStar;
@@ -69,9 +66,6 @@ public class Game {
 			case 5:
 				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 3);
 				break;
-			case 6:
-				this.yellowPlayerAlogrithm = new AlphaBetaPruning(Player.YELLOW, 4);
-				break;
 			default:
 				break;
 		}
@@ -96,9 +90,6 @@ public class Game {
 			case 5:
 				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 3);
 				break;
-			case 6:
-				this.redPlayerAlogrithm = new AlphaBetaPruning(Player.RED, 4);
-				break;
 			default:
 				break;
 		}
@@ -110,7 +101,6 @@ public class Game {
 		 * Ako jeste onda je trenutno na potezu AI i potrebno je sacekati njegov potez.
 		 * 
 		 */		
-		// TODO Zasto se smatra da poslje covjeka mora AI odigrati? Modfikovati da je moguce HUMAN vs HUMAN
 		if((currentPlayer == Player.RED ? redPlayerAlogrithm == null : yellowPlayerAlogrithm == null) && row != -1 && col != -1) {
 			System.out.println("Setting piece " + currentPlayer + "; row: " + row + "; col: " + col);
 			ConnectFourBoard.setPiece(row, col, currentPlayer);
@@ -193,7 +183,7 @@ public class Game {
     };
     
     /**
-     * Provjera da li je poslednji odigrani potez rezultirao spajanjem 4 u nizu
+     * Provjera da li je posljednji odigrani potez rezultirao spajanjem 4 u nizu
      * 
      * @param currentRow
      * @param currentColumn
@@ -212,8 +202,6 @@ public class Game {
     	} else {
     		result = -1;
     	}
-    	
-    	System.out.println("Game result => " + result);
     	
     	return result;
     }

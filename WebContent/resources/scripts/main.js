@@ -1,22 +1,8 @@
-//Crafty.init(500,350, document.getElementById('game'));
-//Crafty.e('2D, DOM, Color, Fourway, Gravity').attr({x: 0, y: 0, w: 100, h: 100}).color('#F00').fourway(8).gravity('Floor');
-//
-//Crafty.e('Floor, 2D, Canvas, Color').attr({
-//    x: 0,
-//    y: 250,
-//    w: 250,
-//    h: 10
-//}).color('green');
-
-//
-//Crafty("Keyboard").bind("KeyDown", function(){
-//    Crafty("*").trigger("Explode");
-//});
 function log(value) {
 	console.log(value);
 }
 
-// Players:
+// Igraci:
 var YELLOW = 0,
     RED = 1,
     COLUMNS = 7,
@@ -118,8 +104,6 @@ var ConnectFour = (function(){
 		board = [];
 		
 		Crafty.init(600,500, document.getElementById('game'));
-	    //Crafty.canvas();
-
 	    Crafty.sprite(64, "resources/img/sprite.png", {
 	        red: [0,0],
 	        yellow: [1,0],
@@ -151,7 +135,6 @@ var ConnectFour = (function(){
 	                    this.gravity("stopper");
 	                    this.unbind("mousedown");
 	                    
-	                    //TODO Dodati callback kada se "slegne" disk a ne preko timeouta
 	                    if(gameActive) {
 	                    	setTimeout(function() {
 		                    	handleTurn(column);
@@ -169,10 +152,6 @@ var ConnectFour = (function(){
 	            	board[column][row] = turn;
 	                
                 	log((gameActive ? "" : "GAME OVER - ") + (turn ? "RED" : "YELLOW") + " (" + column + ", " + row + ")");
-	                /*if(checkFour(column,row)) {
-	                    win(turn);
-	                    return;
-	                }*/
                 	if(gameActive && (turn == 0 &&  redPlayerType != 0) || (turn == 1 && yellowPlayerType != 0)) {
 	                	makeAIMove(column, row, turn);
 	                }
@@ -203,11 +182,6 @@ var ConnectFour = (function(){
         	}));
 	    }
 	    
-//	    Crafty.scene("win", function() {
-//	        var bg = Crafty.e("2D, DOM, Image").image("resources/img/win.png", "no-repeat").attr({w: 600, h: 500, z: -1});
-//	        Crafty.e("2D, DOM, Text").attr({x: 220, y: 200}).text(turn ? "RED" : "YELLOW").font("30pt Arial");
-//	    });
-	    
 	    // start the game
 	    Crafty.scene("game");
 	    document.getElementById("btnStartGame").addEventListener("click", startNewGame);
@@ -220,23 +194,16 @@ var ConnectFour = (function(){
 		for(var i = 0; i < winnerSequence.length; i++) {
 			var winnerMove = winnerSequence[i];
 			setWinnerCoin(player, (winnerMove.col) * 64, (ROWS - winnerMove.row - 1) * 64);
-//			Crafty.e("2D, Canvas, " + player ? "winnerRed" : "winnerYellow").attr({x: winnerMove.row * 64, y: winnerMove.col * 64 + 100, z: 2});
 		}
-		
-//		Crafty.e("2D, Canvas, piece, stopper," + (turn ? "winnerRed" : "winnerYellow")).attr({x: 495, y: 420});
 	}
 	
-	//TODO preko crafty-evog callback ovo tek pozvati, nakon sto se coin smiri na poziciji
+	//TODO preko crafty-evog callback ovo tek pozvati, nakon sto se disk "smiri" na poziciji
 	function win(player, winnerSequence) {
 		setTimeout(function() {
 			var winningPlayer = (player ? "Red" : "Yellow");
 			gameWinnerStatus.innerHTML = winningPlayer + " won!";
 			highlightWinningSequence(winningPlayer, winnerSequence);
 		}, 1000);
-//		setTimeout(function() {
-			//alert((turn ? "RED" : "YELLOW") +  " has won!");
-//		}, 100);
-//        Crafty.scene("win");
     }
 	
 	function findEmptyRow(column) {
@@ -291,12 +258,6 @@ var ConnectFour = (function(){
     		if(autoPlay) {
     			startNewGame();
     		}
-    		
-//    		setTimeout(function() {
-//    			if(autoPlay) {
-//        			startNewGame();
-//        		}
-//    		}, 1500);
     	} else {
     		placeCoin(column);
     	}
